@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cali Cravings — Controladoria Operacional</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --bg: #1C1F1E;
+    --surface: #262A28;
+    --surface-2: #2F3432;
+    --steel: #8B9A94;
+    --steel-dim: #5C6864;
+    --waste: #E0A458;
+    --waste-dim: #6b4f2c;
+    --prod: #6B9B7C;
+    --prod-dim: #395143;
+    --text: #F0EDE6;
+    --text-dim: #A6ACA8;
+    --line: #3A3F3C;
+    --danger: #C1614F;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+  .device{
+    width:100%;
+    max-width:420px;
+    min-height:100vh;
+    background: var(--bg);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:18px 20px 14px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .back{
+    width:34px; height:34px;
+    border-radius:8px;
+    background: var(--surface-2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    color: var(--text-dim);
+    cursor:pointer;
+    flex-shrink:0;
+    visibility:hidden;
+  }
+  .topbar .back.show{visibility:visible;}
+  .topbar .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color: var(--steel);
+    text-transform:uppercase;
+  }
+  .topbar h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:26px;
+    letter-spacing:0.02em;
+    margin:0;
+    line-height:1;
+  }
+
+  .screen{
+    flex:1;
+    display:none;
+    flex-direction:column;
+    padding:20px;
+    padding-bottom:100px;
+    overflow-y:auto;
+  }
+  .screen.active{display:flex;}
+
+  /* ---------- HOME ---------- */
+  #home .brand{
+    text-align:center;
+    padding:30px 0 10px 0;
+  }
+  #home .brand .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.15em;
+    color: var(--steel);
+    text-transform:uppercase;
+  }
+  #home .brand h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:38px;
+    margin:6px 0 0 0;
+    letter-spacing:0.02em;
+  }
+  #home .brand .sub{
+    color:var(--text-dim);
+    font-size:13px;
+    margin-top:4px;
+  }
+
+  .big-btn{
+    border:none;
+    border-radius:14px;
+    padding:26px 22px;
+    margin-top:18px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    cursor:pointer;
+    text-align:left;
+    width:100%;
+    position:relative;
+    overflow:hidden;
+  }
+  .big-btn .icon{
+    font-size:32px;
+    width:56px; height:56px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .big-btn .label-group{flex:1;}
+  .big-btn .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    opacity:0.75;
+  }
+  .big-btn .title{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:26px;
+    line-height:1;
+    margin-top:4px;
+  }
+  .big-btn .arrow{font-size:22px; opacity:0.6;}
+
+  #home .btn-waste{
+    background: linear-gradient(135deg, var(--waste-dim), #4a3620);
+    border:1px solid var(--waste);
+  }
+  #home .btn-waste .icon{ background: var(--waste); color:#241a0d;}
+  #home .btn-waste .tag{color: var(--waste);}
+
+  #home .btn-prod{
+    background: linear-gradient(135deg, var(--prod-dim), #223229);
+    border:1px solid var(--prod);
+  }
+  #home .btn-prod .icon{ background: var(--prod); color:#132018;}
+  #home .btn-prod .tag{color: var(--prod);}
+
+  .today-strip{
+    margin-top:28px;
+    display:flex;
+    gap:10px;
+  }
+  .today-card{
+    flex:1;
+    background: var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .today-card .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px;
+    font-weight:600;
+  }
+  .today-card .l{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:2px;
+  }
+
+  /* ---------- FORM ---------- */
+  .field{
+    margin-bottom:18px;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--text-dim);
+    margin-bottom:8px;
+  }
+  .field label .req{color:var(--waste);}
+  select, input[type=text], input[type=date]{
+    width:100%;
+    background: var(--surface);
+    border:1px solid var(--line);
+    color: var(--text);
+    padding:14px 14px;
+    border-radius:10px;
+    font-size:15px;
+    font-family:'IBM Plex Sans', sans-serif;
+    appearance:none;
+  }
+  select:focus, input:focus{outline:2px solid var(--steel); border-color:var(--steel);}
+
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    padding:10px 14px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip.sel-waste{background: var(--waste); border-color:var(--waste); color:#241a0d; font-weight:600;}
+  .chip.sel-prod{background: var(--prod); border-color:var(--prod); color:#132018; font-weight:600;}
+
+  /* scale-style quantity stepper */
+  .scale{
+    background: #12312B10;
+    background: var(--surface);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+  }
+  .scale .readout{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:40px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:#DFF3C4;
+    background:#0F1210;
+    border-radius:8px;
+    padding:14px 0;
+    margin-bottom:12px;
+    border: 1px solid #2C3530;
+  }
+  .scale .readout .unit{
+    font-size:18px;
+    color: var(--steel);
+    margin-left:6px;
+  }
+  .stepper-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+  }
+  .step-btn{
+    width:52px; height:52px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size:24px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .unit-toggle{
+    display:flex;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .unit-toggle div{
+    padding:12px 16px;
+    background:var(--surface-2);
+    color:var(--text-dim);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .unit-toggle div.active{background:var(--steel); color:#141816; font-weight:600;}
+
+  .photo-box{
+    border:1.5px dashed var(--line);
+    border-radius:12px;
+    padding:26px 16px;
+    text-align:center;
+    color: var(--text-dim);
+    cursor:pointer;
+  }
+  .photo-box.filled{
+    border-style:solid;
+    border-color: var(--waste);
+    color: var(--text);
+  }
+  .photo-box .picon{font-size:26px; display:block; margin-bottom:6px;}
+
+  .toggle-row{
+    display:flex;
+    background: var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .toggle-row div{
+    flex:1;
+    text-align:center;
+    padding:13px 0;
+    font-size:14px;
+    font-weight:600;
+    color:var(--text-dim);
+    cursor:pointer;
+  }
+  .toggle-row div.active.yes{background: var(--prod); color:#132018;}
+  .toggle-row div.active.no{background: var(--danger); color:#2a130e;}
+
+  /* insumo rows for producao */
+  .insumo-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    background: var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:8px;
+  }
+  .insumo-row select{padding:8px 10px; font-size:13px;}
+  .insumo-row input{padding:8px 10px; font-size:13px; width:70px;}
+  .insumo-row .rm{color:var(--danger); font-size:18px; cursor:pointer; padding:0 4px;}
+  .add-insumo{
+    display:flex; align-items:center; gap:8px;
+    color: var(--prod);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    padding:10px 0;
+  }
+
+  .footer-bar{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    padding:16px 20px 22px 20px;
+    background: linear-gradient(0deg, var(--bg) 60%, transparent);
+  }
+  .submit-btn{
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:17px 0;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:20px;
+    letter-spacing:0.03em;
+    cursor:pointer;
+  }
+  .submit-btn.waste{background: var(--waste); color:#241a0d;}
+  .submit-btn.prod{background: var(--prod); color:#132018;}
+
+  /* confirmation chit */
+  #confirm{align-items:center; justify-content:center; text-align:center;}
+  .chit{
+    background: var(--surface);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:30px 26px;
+    width:100%;
+    position:relative;
+  }
+  .chit:before, .chit:after{
+    content:"";
+    position:absolute;
+    left:0; right:0;
+    height:10px;
+    background:
+      radial-gradient(circle at 8px 5px, var(--bg) 5px, transparent 5px) repeat-x;
+    background-size:16px 10px;
+  }
+  .chit:before{top:-5px;}
+  .chit:after{bottom:-5px; transform:rotate(180deg);}
+  .chit .stamp{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:30px;
+    letter-spacing:0.05em;
+    margin:14px 0 6px 0;
+  }
+  .chit .stamp.waste-c{color:var(--waste);}
+  .chit .stamp.prod-c{color:var(--prod);}
+  .chit .detail{color:var(--text-dim); font-size:13px; line-height:1.6; font-family:'IBM Plex Mono', monospace;}
+  .chit .checkicon{font-size:44px;}
+  .home-link{
+    margin-top:22px;
+    color: var(--steel);
+    font-size:14px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="device">
+
+  <div class="topbar">
+    <div class="back" id="backBtn" onclick="goHome()">‹</div>
+    <div>
+      <div class="eyebrow" id="topEyebrow">CALI CRAVINGS</div>
+      <h1 id="topTitle">Controladoria Operacional</h1>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="home">
+    <div class="brand">
+      <div class="eyebrow">Relatório interno de gestão e controle</div>
+      <h1>O que vamos<br>lançar agora?</h1>
+      <div class="sub">Selecione a função abaixo</div>
+    </div>
+
+    <button class="big-btn btn-waste" onclick="openScreen('formWaste','Desperdício','LANÇAMENTO')">
+      <div class="icon">⚠</div>
+      <div class="label-group">
+        <div class="tag">Perda / Quebra</div>
+        <div class="title">Lançar Desperdício</div>
+      </div>
+      <div class="arrow">›</div>
+    </button>
+
+    <button class="big-btn btn-prod" onclick="openScreen('formProd','Produção','LANÇAMENTO')">
+      <div class="icon">◍</div>
+      <div class="label-group">
+        <div class="tag">Mise en place</div>
+        <div class="title">Lançar Produção</div>
+      </div>
+      <div class="arrow">›</div>
+    </button>
+
+    <div class="today-strip">
+      <div class="today-card">
+        <div class="n" style="color:var(--waste)">7</div>
+        <div class="l">desperdícios hoje</div>
+      </div>
+      <div class="today-card">
+        <div class="n" style="color:var(--prod)">12</div>
+        <div class="l">produções hoje</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM DESPERDICIO -->
+  <div class="screen" id="formWaste">
+    <div class="field">
+      <label>Data</label>
+      <input type="date" value="2026-07-04">
+    </div>
+    <div class="field">
+      <label>Setor</label>
+      <div class="chip-row">
+        <div class="chip sel-waste">Cozinha</div>
+        <div class="chip">Bar</div>
+        <div class="chip">Masha Adm</div>
+        <div class="chip">Masha Pier</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Turno</label>
+      <div class="chip-row">
+        <div class="chip sel-waste">Almoço</div>
+        <div class="chip">Jantar</div>
+        <div class="chip">Integral</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Produto <span class="req">*</span></label>
+      <select>
+        <option>Filé Mignon Suíno</option>
+        <option>Camarão VG</option>
+        <option>Molho Chimichurri</option>
+        <option>Alface Americana</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Motivo do desperdício <span class="req">*</span></label>
+      <div class="chip-row" id="motivoRow">
+        <div class="chip sel-waste">Vencimento</div>
+        <div class="chip">Erro de preparo</div>
+        <div class="chip">Queda / quebra</div>
+        <div class="chip">Contaminação</div>
+        <div class="chip">Erro de pedido</div>
+        <div class="chip">Defeito fornecedor</div>
+        <div class="chip" data-outro="true">Outro</div>
+      </div>
+      <div id="motivoOutroBox" style="display:none; margin-top:10px;">
+        <input type="text" id="motivoOutroInput" placeholder="Descreva o motivo...">
+      </div>
+    </div>
+    <div class="field">
+      <label>Quantidade</label>
+      <div class="scale">
+        <div class="readout">0,450 <span class="unit">kg</span></div>
+        <div class="stepper-row">
+          <div class="step-btn">–</div>
+          <div class="unit-toggle">
+            <div class="active">KG</div>
+            <div>ML</div>
+          </div>
+          <div class="step-btn">+</div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Foto do desperdício <span class="req">*</span></label>
+      <div class="photo-box">
+        <span class="picon">📷</span>
+        Toque para anexar a foto do desperdício
+      </div>
+    </div>
+    <div class="field">
+      <label>Responsável pelo lançamento</label>
+      <select>
+        <option>André (Gerente de salão)</option>
+        <option>Chef Lucas Crebs</option>
+        <option>Rafael</option>
+        <option>Outro colaborador...</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Enviar WhatsApp agora?</label>
+      <div class="toggle-row">
+        <div class="active yes">Sim</div>
+        <div>Não</div>
+      </div>
+    </div>
+    <div style="height:70px"></div>
+  </div>
+
+  <!-- FORM PRODUCAO -->
+  <div class="screen" id="formProd">
+    <div class="field">
+      <label>Data</label>
+      <input type="date" value="2026-07-04">
+    </div>
+    <div class="field">
+      <label>Setor</label>
+      <div class="chip-row">
+        <div class="chip sel-prod">Cozinha</div>
+        <div class="chip">Bar</div>
+        <div class="chip">Cali Café</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Responsável (colaborador) <span class="req">*</span></label>
+      <select>
+        <option>Chef Lucas Crebs</option>
+        <option>Auxiliar de cozinha — Bruno</option>
+        <option>Auxiliar de cozinha — Marcos</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Qual a produção <span class="req">*</span></label>
+      <select>
+        <option>Molho Chimichurri</option>
+        <option>Mix de Folhas Higienizado</option>
+        <option>Base de Risoto</option>
+        <option>Pão de Fermentação Natural</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Insumos utilizados</label>
+      <div class="insumo-row">
+        <select><option>Salsinha</option><option>Alho</option></select>
+        <input type="text" value="0,300">
+        <span style="font-size:12px; color:var(--text-dim)">kg</span>
+        <div class="rm">✕</div>
+      </div>
+      <div class="insumo-row">
+        <select><option>Azeite Extra Virgem</option></select>
+        <input type="text" value="0,500">
+        <span style="font-size:12px; color:var(--text-dim)">L</span>
+        <div class="rm">✕</div>
+      </div>
+      <div class="add-insumo">+ Adicionar insumo</div>
+    </div>
+    <div class="field">
+      <label>Rendimento da produção (quantidade final)</label>
+      <div class="scale">
+        <div class="readout" style="color:#D7E9FF">2,150 <span class="unit">kg</span></div>
+        <div class="stepper-row">
+          <div class="step-btn">–</div>
+          <div class="unit-toggle">
+            <div class="active">KG</div>
+            <div>ML</div>
+          </div>
+          <div class="step-btn">+</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:70px"></div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div class="screen" id="confirm">
+    <div class="chit">
+      <div class="checkicon" id="confIcon">✓</div>
+      <div class="stamp" id="confStamp">DESPERDÍCIO REGISTRADO</div>
+      <div class="detail" id="confDetail">
+        04/07/2026 · Cozinha · Almoço<br>
+        0,450 kg · Vencimento<br>
+        Lançado por: André
+      </div>
+    </div>
+    <div class="home-link" onclick="goHome()">‹ Voltar ao início</div>
+  </div>
+
+  <!-- FOOTER SUBMIT -->
+  <div class="footer-bar" id="footerWaste" style="display:none;">
+    <button class="submit-btn waste" onclick="submitForm('waste')">Registrar Desperdício</button>
+  </div>
+  <div class="footer-bar" id="footerProd" style="display:none;">
+    <button class="submit-btn prod" onclick="submitForm('prod')">Registrar Produção</button>
+  </div>
+
+</div>
+
+<script>
+  function hideAll(){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('footerWaste').style.display = 'none';
+    document.getElementById('footerProd').style.display = 'none';
+    document.getElementById('backBtn').classList.remove('show');
+  }
+  function openScreen(id, title, eyebrow){
+    hideAll();
+    document.getElementById(id).classList.add('active');
+    document.getElementById('topTitle').textContent = title;
+    document.getElementById('topEyebrow').textContent = eyebrow;
+    document.getElementById('backBtn').classList.add('show');
+    if(id === 'formWaste') document.getElementById('footerWaste').style.display = 'block';
+    if(id === 'formProd') document.getElementById('footerProd').style.display = 'block';
+  }
+  function goHome(){
+    hideAll();
+    document.getElementById('home').classList.add('active');
+    document.getElementById('topTitle').textContent = 'Controladoria Operacional';
+    document.getElementById('topEyebrow').textContent = 'CALI CRAVINGS';
+  }
+  function submitForm(type){
+    if(type === 'waste'){
+      const photoBox = document.querySelector('#formWaste .photo-box');
+      if(!photoBox.classList.contains('filled')){
+        photoBox.classList.add('error-shake');
+        photoBox.style.borderColor = 'var(--danger)';
+        photoBox.style.color = 'var(--danger)';
+        photoBox.querySelector('.picon').nextSibling ? '' : '';
+        photoBox.innerHTML = '<span class="picon">⚠</span>Foto obrigatória — toque para anexar';
+        photoBox.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+    }
+    hideAll();
+    document.getElementById('confirm').classList.add('active');
+    document.getElementById('backBtn').classList.add('show');
+    if(type === 'waste'){
+      document.getElementById('confStamp').className = 'stamp waste-c';
+      document.getElementById('confStamp').textContent = 'DESPERDÍCIO REGISTRADO';
+      document.getElementById('confDetail').innerHTML = '04/07/2026 · Cozinha · Almoço<br>0,450 kg · Vencimento<br>Lançado por: André';
+      document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
+      document.getElementById('topTitle').textContent = 'Desperdício';
+    } else {
+      document.getElementById('confStamp').className = 'stamp prod-c';
+      document.getElementById('confStamp').textContent = 'PRODUÇÃO REGISTRADA';
+      document.getElementById('confDetail').innerHTML = '04/07/2026 · Cozinha<br>Molho Chimichurri · 2,150 kg<br>Responsável: Chef Lucas Crebs';
+      document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
+      document.getElementById('topTitle').textContent = 'Produção';
+    }
+  }
+
+  // chip select behavior (single select per row)
+  document.querySelectorAll('.chip-row').forEach(row => {
+    row.addEventListener('click', e => {
+      if(!e.target.classList.contains('chip')) return;
+      const inWaste = document.getElementById('formWaste').contains(row);
+      const selClass = inWaste ? 'sel-waste' : 'sel-prod';
+      row.querySelectorAll('.chip').forEach(c => c.classList.remove(selClass));
+      e.target.classList.add(selClass);
+
+      // show/hide "outro" observation field
+      if(row.id === 'motivoRow'){
+        const box = document.getElementById('motivoOutroBox');
+        if(e.target.dataset.outro === 'true'){
+          box.style.display = 'block';
+          document.getElementById('motivoOutroInput').focus();
+        } else {
+          box.style.display = 'none';
+        }
+      }
+    });
+  });
+
+  // toggle row (sim/nao)
+  document.querySelectorAll('.toggle-row').forEach(row => {
+    row.addEventListener('click', e => {
+      if(e.target.tagName !== 'DIV') return;
+      row.querySelectorAll('div').forEach(d => d.classList.remove('active','yes','no'));
+      const isYes = e.target.textContent.trim() === 'Sim';
+      e.target.classList.add('active', isYes ? 'yes' : 'no');
+    });
+  });
+
+  // unit toggle
+  document.querySelectorAll('.unit-toggle').forEach(row => {
+    row.addEventListener('click', e => {
+      if(e.target.tagName !== 'DIV') return;
+      row.querySelectorAll('div').forEach(d => d.classList.remove('active'));
+      e.target.classList.add('active');
+      const readout = row.closest('.scale').querySelector('.readout .unit');
+      readout.textContent = e.target.textContent.toLowerCase();
+    });
+  });
+
+  // stepper buttons (visual only, +/- 0.05)
+  document.querySelectorAll('.scale').forEach(scale => {
+    const readoutEl = scale.querySelector('.readout');
+    const unitEl = readoutEl.querySelector('.unit');
+    const steps = scale.querySelectorAll('.step-btn');
+    function getVal(){
+      return parseFloat(readoutEl.firstChild.textContent.trim().replace(',', '.'));
+    }
+    function setVal(v){
+      const unit = unitEl.textContent;
+      readoutEl.firstChild.textContent = v.toFixed(3).replace('.', ',') + ' ';
+      readoutEl.querySelector('.unit').textContent = unit;
+    }
+    if(steps[0]) steps[0].addEventListener('click', () => setVal(Math.max(0, getVal() - 0.05)));
+    if(steps[1]) steps[1].addEventListener('click', () => setVal(getVal() + 0.05));
+  });
+
+  // remove insumo row
+  document.querySelectorAll('.insumo-row .rm').forEach(rm => {
+    rm.addEventListener('click', () => rm.closest('.insumo-row').remove());
+  });
+
+  // add insumo row (clones last one)
+  document.querySelectorAll('.add-insumo').forEach(add => {
+    add.addEventListener('click', () => {
+      const rows = add.parentElement.querySelectorAll('.insumo-row');
+      const clone = rows[rows.length - 1].cloneNode(true);
+      clone.querySelector('input').value = '';
+      clone.querySelector('.rm').addEventListener('click', () => clone.remove());
+      add.parentElement.insertBefore(clone, add);
+    });
+  });
+
+  // photo box toggle (visual demo)
+  document.querySelectorAll('.photo-box').forEach(box => {
+    box.addEventListener('click', () => {
+      box.style.borderColor = '';
+      box.style.color = '';
+      if(box.classList.contains('filled')){
+        box.classList.remove('filled');
+        box.innerHTML = '<span class="picon">📷</span>Toque para anexar a foto do desperdício';
+      } else {
+        box.classList.add('filled');
+        box.innerHTML = '<span class="picon">📷</span>Foto anexada — toque para refazer';
+      }
+    });
+  });
+</script>
+</body>
+</html>
