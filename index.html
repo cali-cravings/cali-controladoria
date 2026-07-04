@@ -257,6 +257,19 @@
     color: var(--steel);
     margin-left:6px;
   }
+  .readout-input{
+    background:transparent !important;
+    border:none !important;
+    color:inherit;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:40px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    width:140px;
+    text-align:right;
+    padding:0 !important;
+  }
+  .readout-input:focus{outline:none !important;}
   .stepper-row{
     display:flex;
     align-items:center;
@@ -479,12 +492,29 @@
     </div>
     <div class="field">
       <label>Produto <span class="req">*</span></label>
-      <select>
-        <option>Filé Mignon Suíno</option>
-        <option>Camarão VG</option>
-        <option>Molho Chimichurri</option>
-        <option>Alface Americana</option>
-      </select>
+      <input type="text" list="produtosList" placeholder="Digite para buscar o produto...">
+      <datalist id="produtosList">
+        <option value="Filé Mignon Suíno">
+        <option value="Camarão VG">
+        <option value="Molho Chimichurri">
+        <option value="Alface Americana">
+        <option value="Azeite Extra Virgem">
+        <option value="Salsinha">
+        <option value="Alho">
+        <option value="Limão Siciliano">
+        <option value="Queijo Parmesão">
+        <option value="Tomate Cereja">
+        <option value="Cebola Roxa">
+        <option value="Vinho Branco Seco">
+        <option value="Manteiga sem Sal">
+        <option value="Farinha de Trigo">
+        <option value="Creme de Leite Fresco">
+        <option value="Peito de Frango">
+        <option value="Polvo Congelado">
+        <option value="Rúcula">
+        <option value="Pão Brioche">
+        <option value="Mostarda Dijon">
+      </datalist>
     </div>
     <div class="field">
       <label>Motivo do desperdício <span class="req">*</span></label>
@@ -504,7 +534,7 @@
     <div class="field">
       <label>Quantidade</label>
       <div class="scale">
-        <div class="readout">0,450 <span class="unit">kg</span></div>
+        <div class="readout"><input type="text" inputmode="decimal" class="readout-input" value="0,450"> <span class="unit">kg</span></div>
         <div class="stepper-row">
           <div class="step-btn">–</div>
           <div class="unit-toggle">
@@ -517,19 +547,15 @@
     </div>
     <div class="field">
       <label>Foto do desperdício <span class="req">*</span></label>
-      <div class="photo-box">
+      <div class="photo-box" id="photoBox">
         <span class="picon">📷</span>
-        Toque para anexar a foto do desperdício
+        Toque para abrir a câmera
       </div>
+      <input type="file" accept="image/*" capture="environment" id="photoInput" style="display:none">
     </div>
     <div class="field">
       <label>Responsável pelo lançamento</label>
-      <select>
-        <option>André (Gerente de salão)</option>
-        <option>Chef Lucas Crebs</option>
-        <option>Rafael</option>
-        <option>Outro colaborador...</option>
-      </select>
+      <input type="text" placeholder="Nome do colaborador">
     </div>
     <div class="field">
       <label>Enviar WhatsApp agora?</label>
@@ -557,11 +583,7 @@
     </div>
     <div class="field">
       <label>Responsável (colaborador) <span class="req">*</span></label>
-      <select>
-        <option>Chef Lucas Crebs</option>
-        <option>Auxiliar de cozinha — Bruno</option>
-        <option>Auxiliar de cozinha — Marcos</option>
-      </select>
+      <input type="text" placeholder="Nome do colaborador">
     </div>
     <div class="field">
       <label>Qual a produção <span class="req">*</span></label>
@@ -575,13 +597,13 @@
     <div class="field">
       <label>Insumos utilizados</label>
       <div class="insumo-row">
-        <select><option>Salsinha</option><option>Alho</option></select>
+        <input type="text" list="produtosList" value="Salsinha" style="flex:1;">
         <input type="text" value="0,300">
         <span style="font-size:12px; color:var(--text-dim)">kg</span>
         <div class="rm">✕</div>
       </div>
       <div class="insumo-row">
-        <select><option>Azeite Extra Virgem</option></select>
+        <input type="text" list="produtosList" value="Azeite Extra Virgem" style="flex:1;">
         <input type="text" value="0,500">
         <span style="font-size:12px; color:var(--text-dim)">L</span>
         <div class="rm">✕</div>
@@ -591,7 +613,7 @@
     <div class="field">
       <label>Rendimento da produção (quantidade final)</label>
       <div class="scale">
-        <div class="readout" style="color:#D7E9FF">2,150 <span class="unit">kg</span></div>
+        <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" style="color:#D7E9FF" value="2,150"> <span class="unit">kg</span></div>
         <div class="stepper-row">
           <div class="step-btn">–</div>
           <div class="unit-toggle">
@@ -653,13 +675,11 @@
   }
   function submitForm(type){
     if(type === 'waste'){
-      const photoBox = document.querySelector('#formWaste .photo-box');
+      const photoBox = document.getElementById('photoBox');
       if(!photoBox.classList.contains('filled')){
-        photoBox.classList.add('error-shake');
         photoBox.style.borderColor = 'var(--danger)';
         photoBox.style.color = 'var(--danger)';
-        photoBox.querySelector('.picon').nextSibling ? '' : '';
-        photoBox.innerHTML = '<span class="picon">⚠</span>Foto obrigatória — toque para anexar';
+        photoBox.innerHTML = '<span class="picon">⚠</span>Foto obrigatória — toque para abrir a câmera';
         photoBox.scrollIntoView({behavior:'smooth', block:'center'});
         return;
       }
@@ -725,21 +745,21 @@
     });
   });
 
-  // stepper buttons (visual only, +/- 0.05)
+  // stepper buttons + manual editing, both write to the same input
   document.querySelectorAll('.scale').forEach(scale => {
-    const readoutEl = scale.querySelector('.readout');
-    const unitEl = readoutEl.querySelector('.unit');
+    const input = scale.querySelector('.readout-input');
+    const unitEl = scale.querySelector('.readout .unit');
     const steps = scale.querySelectorAll('.step-btn');
     function getVal(){
-      return parseFloat(readoutEl.firstChild.textContent.trim().replace(',', '.'));
+      const v = parseFloat(input.value.replace(',', '.'));
+      return isNaN(v) ? 0 : v;
     }
     function setVal(v){
-      const unit = unitEl.textContent;
-      readoutEl.firstChild.textContent = v.toFixed(3).replace('.', ',') + ' ';
-      readoutEl.querySelector('.unit').textContent = unit;
+      input.value = v.toFixed(3).replace('.', ',');
     }
     if(steps[0]) steps[0].addEventListener('click', () => setVal(Math.max(0, getVal() - 0.05)));
     if(steps[1]) steps[1].addEventListener('click', () => setVal(getVal() + 0.05));
+    input.addEventListener('blur', () => { if(input.value.trim() !== '') setVal(getVal()); });
   });
 
   // remove insumo row
@@ -758,20 +778,28 @@
     });
   });
 
-  // photo box toggle (visual demo)
-  document.querySelectorAll('.photo-box').forEach(box => {
-    box.addEventListener('click', () => {
-      box.style.borderColor = '';
-      box.style.color = '';
-      if(box.classList.contains('filled')){
-        box.classList.remove('filled');
-        box.innerHTML = '<span class="picon">📷</span>Toque para anexar a foto do desperdício';
-      } else {
-        box.classList.add('filled');
-        box.innerHTML = '<span class="picon">📷</span>Foto anexada — toque para refazer';
+  // photo box: opens the phone camera via file input (capture="environment")
+  const photoBox = document.getElementById('photoBox');
+  const photoInput = document.getElementById('photoInput');
+  if(photoBox && photoInput){
+    photoBox.addEventListener('click', () => photoInput.click());
+    photoInput.addEventListener('change', () => {
+      if(photoInput.files && photoInput.files[0]){
+        const reader = new FileReader();
+        reader.onload = e => {
+          photoBox.style.backgroundImage = `url(${e.target.result})`;
+          photoBox.style.backgroundSize = 'cover';
+          photoBox.style.backgroundPosition = 'center';
+          photoBox.style.borderColor = 'var(--waste)';
+          photoBox.style.color = '#fff';
+          photoBox.style.textShadow = '0 1px 6px rgba(0,0,0,0.85)';
+          photoBox.classList.add('filled');
+          photoBox.innerHTML = '<span class="picon">✓</span>Foto anexada — toque para refazer';
+        };
+        reader.readAsDataURL(photoInput.files[0]);
       }
     });
-  });
+  }
 </script>
 </body>
 </html>
