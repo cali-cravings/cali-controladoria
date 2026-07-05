@@ -501,7 +501,7 @@
   <div class="screen" id="formWaste">
     <div class="field">
       <label>Data</label>
-      <input type="date" id="wasteData" value="2026-07-04">
+      <input type="date" id="wasteData">
     </div>
     <div class="field">
       <label>Setor</label>
@@ -581,7 +581,7 @@
   <div class="screen" id="formProd">
     <div class="field">
       <label>Data</label>
-      <input type="date" id="prodData" value="2026-07-04">
+      <input type="date" id="prodData">
     </div>
     <div class="field">
       <label>Setor</label>
@@ -738,6 +738,10 @@
 
   document.querySelectorAll('.produto-ac').forEach(attachAutocomplete);
 
+  // preenche a data de hoje automaticamente nos dois formulários
+  document.getElementById('wasteData').value = todayStr();
+  document.getElementById('prodData').value = todayStr();
+
   function hideAll(){
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('footerWaste').style.display = 'none';
@@ -767,7 +771,11 @@
   }
 
   function todayStr(){
-    return new Date().toISOString().slice(0,10);
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   async function uploadPhoto(file, docId){
