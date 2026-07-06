@@ -247,6 +247,45 @@
     font-size:12px;
     font-weight:600;
     text-decoration:none;
+    cursor:pointer;
+  }
+
+  /* photo viewer modal */
+  .photo-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(10,12,11,0.92);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+    padding:24px;
+  }
+  .photo-modal.show{display:flex;}
+  .photo-modal img{
+    max-width:100%;
+    max-height:80vh;
+    border-radius:10px;
+    border:1px solid var(--line);
+  }
+  .photo-modal .close-btn{
+    position:absolute;
+    top:20px; right:20px;
+    width:40px; height:40px;
+    border-radius:20px;
+    background: var(--surface-2);
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    cursor:pointer;
+  }
+  .photo-modal .save-hint{
+    position:absolute;
+    bottom:24px;
+    left:0; right:0;
+    text-align:center;
+    color: var(--text-dim);
+    font-size:12px;
   }
 
   /* ---------- FORM ---------- */
@@ -735,6 +774,13 @@
 
 </div>
 
+<!-- PHOTO VIEWER MODAL (evita expor o link do Storage) -->
+<div class="photo-modal" id="photoModal" onclick="if(event.target===this) closePhotoModal()">
+  <div class="close-btn" onclick="closePhotoModal()">✕</div>
+  <img id="photoModalImg" src="" alt="Foto do desperdício">
+  <div class="save-hint">Toque e segure na imagem para salvar</div>
+</div>
+
 <!-- ============================================================ -->
 <!-- FIREBASE — cole as chaves do seu projeto aqui embaixo         -->
 <!-- (Console Firebase > Configurações do projeto > Seus apps)     -->
@@ -863,7 +909,7 @@
         const d = doc.data();
         const hora = d.criadoEm ? new Date(d.criadoEm).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour: '2-digit', minute: '2-digit' }) : '--:--';
         if(isWaste){
-          const fotoBtn = d.fotoUrl ? `<a href="${d.fotoUrl}" target="_blank" rel="noopener" class="download-btn">⬇ Ver / baixar foto</a>` : '';
+          const fotoBtn = d.fotoUrl ? `<div class="download-btn" onclick="openPhotoModal('${d.fotoUrl.replace(/'/g, "\\'")}')">⬇ Ver / baixar foto</div>` : '';
           return `<div class="consulta-item waste-item">
             <div class="top-row"><span class="produto">${d.produto || '—'}</span><span class="hora">${hora}</span></div>
             <div class="meta">${d.setor || '—'} · ${d.turno || '—'}<br>Motivo: ${d.motivo || '—'}<br>Qtd: <span class="qtd">${d.quantidade || '0'} ${d.unidade || ''}</span> · Responsável: ${d.responsavel || '—'}</div>
@@ -882,6 +928,15 @@
       list.innerHTML = '<div class="consulta-empty">Erro ao carregar os dados.</div>';
     });
   }
+  function openPhotoModal(url){
+    document.getElementById('photoModalImg').src = url;
+    document.getElementById('photoModal').classList.add('show');
+  }
+  function closePhotoModal(){
+    document.getElementById('photoModal').classList.remove('show');
+    document.getElementById('photoModalImg').src = '';
+  }
+
   function getSelectedChip(rowId){
     const row = document.getElementById(rowId);
     if(!row) return '';
