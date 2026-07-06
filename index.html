@@ -185,55 +185,6 @@
     color:var(--text-dim);
     margin-top:2px;
   }
-  .today-card.clickable{cursor:pointer; transition:transform .12s ease, border-color .12s ease;}
-  .today-card.clickable:active{transform:scale(0.96);}
-
-  /* ---------- CONSULTA ---------- */
-  .consulta-loading, .consulta-empty{
-    color:var(--text-dim);
-    font-size:14px;
-    text-align:center;
-    margin-top:40px;
-  }
-  .consulta-item{
-    background: var(--surface);
-    border:1px solid var(--line);
-    border-left:3px solid var(--steel);
-    border-radius:12px;
-    padding:14px 16px;
-    margin-bottom:10px;
-  }
-  .consulta-item.waste-item{border-left-color: var(--waste);}
-  .consulta-item.prod-item{border-left-color: var(--prod);}
-  .consulta-item .top-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    margin-bottom:6px;
-    gap:10px;
-  }
-  .consulta-item .produto{
-    font-family:'Bebas Neue', sans-serif;
-    font-size:20px;
-    letter-spacing:0.02em;
-    line-height:1.1;
-  }
-  .consulta-item .hora{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color: var(--text-dim);
-    flex-shrink:0;
-  }
-  .consulta-item .meta{
-    font-size:13px;
-    color: var(--text-dim);
-    line-height:1.6;
-  }
-  .consulta-item .qtd{
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    color: var(--text);
-  }
 
   /* ---------- FORM ---------- */
   .field{
@@ -535,11 +486,11 @@
     </button>
 
     <div class="today-strip">
-      <div class="today-card clickable" id="wasteTodayCard" onclick="openConsulta('waste')">
+      <div class="today-card">
         <div class="n" id="wasteTodayCount" style="color:var(--waste)">–</div>
         <div class="l">desperdícios hoje</div>
       </div>
-      <div class="today-card clickable" id="prodTodayCard" onclick="openConsulta('prod')">
+      <div class="today-card">
         <div class="n" id="prodTodayCount" style="color:var(--prod)">–</div>
         <div class="l">produções hoje</div>
       </div>
@@ -692,11 +643,6 @@
     <div style="height:70px"></div>
   </div>
 
-  <!-- CONSULTA -->
-  <div class="screen" id="consulta">
-    <div id="consultaList"></div>
-  </div>
-
   <!-- CONFIRMATION -->
   <div class="screen" id="confirm">
     <div class="chit">
@@ -816,55 +762,6 @@
     document.getElementById('home').classList.add('active');
     document.getElementById('topTitle').textContent = 'Controladoria Operacional';
     document.getElementById('topEyebrow').textContent = 'CALI CRAVINGS';
-  }
-
-  function openConsulta(type){
-    hideAll();
-    document.getElementById('consulta').classList.add('active');
-    document.getElementById('backBtn').classList.add('show');
-    const isWaste = type === 'waste';
-    document.getElementById('topEyebrow').textContent = 'CONSULTA';
-    document.getElementById('topTitle').textContent = isWaste ? 'Desperdícios de hoje' : 'Produções de hoje';
-
-    const list = document.getElementById('consultaList');
-    list.innerHTML = '<div class="consulta-loading">Carregando…</div>';
-
-    if(!firebaseReady){
-      list.innerHTML = '<div class="consulta-empty">Firebase ainda não configurado — não há dados para consultar.</div>';
-      return;
-    }
-
-    const col = isWaste ? 'desperdicios' : 'producoes';
-    db.collection(col).where('data', '==', todayStr()).get().then(snap => {
-      if(snap.empty){
-        list.innerHTML = `<div class="consulta-empty">Nenhum${isWaste ? ' desperdício' : 'a produção'} lançado hoje ainda.</div>`;
-        return;
-      }
-      const docs = snap.docs.slice().sort((a, b) => {
-        const ta = a.data().criadoEm || '';
-        const tb = b.data().criadoEm || '';
-        return tb.localeCompare(ta);
-      });
-      list.innerHTML = docs.map(doc => {
-        const d = doc.data();
-        const hora = d.criadoEm ? new Date(d.criadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
-        if(isWaste){
-          return `<div class="consulta-item waste-item">
-            <div class="top-row"><span class="produto">${d.produto || '—'}</span><span class="hora">${hora}</span></div>
-            <div class="meta">${d.setor || '—'} · ${d.turno || '—'}<br>Motivo: ${d.motivo || '—'}<br>Qtd: <span class="qtd">${d.quantidade || '0'} ${d.unidade || ''}</span> · Responsável: ${d.responsavel || '—'}</div>
-          </div>`;
-        } else {
-          const insumosTxt = (d.insumos || []).map(i => `${i.produto} (${i.quantidade}${i.unidade})`).join(', ');
-          return `<div class="consulta-item prod-item">
-            <div class="top-row"><span class="produto">${d.item || '—'}</span><span class="hora">${hora}</span></div>
-            <div class="meta">${d.setor || '—'}<br>Rendimento: <span class="qtd">${d.rendimento || '0'} ${d.unidade || ''}</span> · Responsável: ${d.responsavel || '—'}${insumosTxt ? '<br>Insumos: ' + insumosTxt : ''}</div>
-          </div>`;
-        }
-      }).join('');
-    }).catch(e => {
-      console.error(e);
-      list.innerHTML = '<div class="consulta-empty">Erro ao carregar os dados.</div>';
-    });
   }
   function getSelectedChip(rowId){
     const row = document.getElementById(rowId);
@@ -1104,4 +1001,3 @@
 </script>
 </body>
 </html>
-
