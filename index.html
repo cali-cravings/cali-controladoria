@@ -462,7 +462,7 @@
     justify-content:center;
   }
   .unit-toggle div{
-    padding:15px 22px;
+    padding:15px 16px;
     background: linear-gradient(150deg, #3d4340, #24282a);
     border:1px solid #3d433f;
     color:var(--text-dim);
@@ -731,6 +731,7 @@
         <div class="chip">Bar</div>
         <div class="chip">Masha Adm</div>
         <div class="chip">Masha Pier</div>
+        <div class="chip">Cali Café</div>
       </div>
     </div>
     <div class="field">
@@ -771,6 +772,7 @@
           <div class="unit-toggle">
             <div class="active">KG</div>
             <div>ML</div>
+            <div>UN</div>
           </div>
           <div class="step-btn">+</div>
         </div>
@@ -861,6 +863,7 @@
           <div class="unit-toggle">
             <div class="active">KG</div>
             <div>ML</div>
+            <div>UN</div>
           </div>
           <div class="step-btn">+</div>
         </div>
@@ -1392,8 +1395,32 @@
       if(e.target.tagName !== 'DIV') return;
       row.querySelectorAll('div').forEach(d => d.classList.remove('active'));
       e.target.classList.add('active');
-      const readout = row.closest('.scale').querySelector('.readout .unit');
-      readout.textContent = e.target.textContent.toLowerCase();
+      const scale = row.closest('.scale');
+      const readout = scale.querySelector('.readout .unit');
+      const unit = e.target.textContent.toLowerCase();
+      readout.textContent = unit;
+
+      // ao trocar pra UN, reformata o valor atual como inteiro (sem casas decimais)
+      const input = scale.querySelector('.readout-input');
+      if(input){
+        const v = parseFloat(input.value.replace(',', '.'));
+        if(!isNaN(v)){
+          input.value = unit === 'un' ? String(Math.round(v)) : v.toFixed(3).replace('.', ',');
+        }
+        input.setAttribute('inputmode', unit === 'un' ? 'numeric' : 'decimal');
+      }
+    });
+  });
+
+  // impede digitar vírgula/ponto quando a unidade estiver em UN (só inteiros)
+  document.querySelectorAll('.readout-input').forEach(input => {
+    input.addEventListener('input', () => {
+      const scale = input.closest('.scale');
+      const unit = scale.querySelector('.readout .unit').textContent;
+      if(unit === 'un'){
+        const cleaned = input.value.replace(/[^0-9]/g, '');
+        if(cleaned !== input.value) input.value = cleaned;
+      }
     });
   });
 
@@ -1402,15 +1429,16 @@
     const input = scale.querySelector('.readout-input');
     const unitEl = scale.querySelector('.readout .unit');
     const steps = scale.querySelectorAll('.step-btn');
+    function isUnidade(){ return unitEl.textContent === 'un'; }
     function getVal(){
       const v = parseFloat(input.value.replace(',', '.'));
       return isNaN(v) ? 0 : v;
     }
     function setVal(v){
-      input.value = v.toFixed(3).replace('.', ',');
+      input.value = isUnidade() ? String(Math.max(0, Math.round(v))) : v.toFixed(3).replace('.', ',');
     }
-    if(steps[0]) steps[0].addEventListener('click', () => setVal(Math.max(0, getVal() - 0.05)));
-    if(steps[1]) steps[1].addEventListener('click', () => setVal(getVal() + 0.05));
+    if(steps[0]) steps[0].addEventListener('click', () => setVal(getVal() - (isUnidade() ? 1 : 0.05)));
+    if(steps[1]) steps[1].addEventListener('click', () => setVal(getVal() + (isUnidade() ? 1 : 0.05)));
     input.addEventListener('blur', () => { if(input.value.trim() !== '') setVal(getVal()); });
   });
 
