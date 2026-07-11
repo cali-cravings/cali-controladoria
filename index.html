@@ -584,29 +584,35 @@
     align-items:center;
     gap:8px;
   }
-  .insumo-bottom{
-    display:flex;
-    align-items:baseline;
-    gap:10px;
-  }
-  .insumo-qtd{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:39px;
-    font-weight:700;
-    color:#FFFFFF;
-    background:#0a0d0c;
-    border:1px solid #262b29 !important;
-    border-radius:10px;
-    padding:6px 16px !important;
-    width:auto;
-    max-width:170px;
-  }
-  .insumo-unit{
-    font-size:16px;
-    font-weight:700;
-    color: var(--text-dim);
-  }
   .insumo-row .rm{color:var(--danger); font-size:20px; cursor:pointer; padding:0 4px;}
+
+  /* versão compacta do painel de quantidade, usada dentro de cada insumo */
+  .scale-compact{
+    padding:12px;
+    border-radius:16px;
+  }
+  .scale-compact .readout{
+    padding:12px 10px 10px 10px;
+    margin-bottom:10px;
+    border-radius:12px;
+  }
+  .scale-compact .readout-input{
+    font-size:32px;
+  }
+  .scale-compact .readout .unit{
+    font-size:16px;
+  }
+  .scale-compact .step-btn{
+    width:40px; height:40px;
+    font-size:18px;
+    border-radius:11px;
+  }
+  .scale-compact .unit-toggle div{
+    padding:10px 10px;
+    font-size:11px;
+    border-radius:10px;
+  }
+  .scale-compact .qty-edit-btn{display:none;}
 
   /* custom searchable autocomplete (replaces native datalist for 1000+ products) */
   .ac-wrap{position:relative;}
@@ -1404,8 +1410,8 @@
         .filter(row => row.querySelector('.produto-ac').value.trim() !== '')
         .map(row => {
           const produto = row.querySelector('.produto-ac').value;
-          const qtd = row.querySelector('.insumo-qtd').value;
-          const unidade = row.querySelector('.insumo-unit').textContent;
+          const qtd = row.querySelector('.readout-input').value;
+          const unidade = row.querySelector('.readout .unit').textContent;
           return { produto, quantidade: qtd, unidade };
         });
 
@@ -1490,45 +1496,16 @@
   });
 
   // unit toggle
-  document.querySelectorAll('.unit-toggle').forEach(row => {
-    row.addEventListener('click', e => {
-      if(e.target.tagName !== 'DIV') return;
-      row.querySelectorAll('div').forEach(d => d.classList.remove('active'));
-      e.target.classList.add('active');
-      const scale = row.closest('.scale');
-      const readout = scale.querySelector('.readout .unit');
-      const unit = e.target.textContent.toLowerCase();
-      readout.textContent = unit;
+  // ===================== COMPORTAMENTO DO PAINEL DE QUANTIDADE (reutilizável) =====================
+  function attachScaleBehavior(scale){
+    if(!scale || scale.dataset.scaleReady) return;
+    scale.dataset.scaleReady = '1';
 
-      // ao trocar pra UN, reformata o valor atual como inteiro (sem casas decimais)
-      const input = scale.querySelector('.readout-input');
-      if(input){
-        const v = parseFloat(input.value.replace(',', '.'));
-        if(!isNaN(v)){
-          input.value = unit === 'un' ? String(Math.round(v)) : v.toFixed(3).replace('.', ',');
-        }
-        input.setAttribute('inputmode', unit === 'un' ? 'numeric' : 'decimal');
-      }
-    });
-  });
-
-  // impede digitar vírgula/ponto quando a unidade estiver em UN (só inteiros)
-  document.querySelectorAll('.readout-input').forEach(input => {
-    input.addEventListener('input', () => {
-      const scale = input.closest('.scale');
-      const unit = scale.querySelector('.readout .unit').textContent;
-      if(unit === 'un'){
-        const cleaned = input.value.replace(/[^0-9]/g, '');
-        if(cleaned !== input.value) input.value = cleaned;
-      }
-    });
-  });
-
-  // stepper buttons + manual editing, both write to the same input
-  document.querySelectorAll('.scale').forEach(scale => {
     const input = scale.querySelector('.readout-input');
     const unitEl = scale.querySelector('.readout .unit');
+    const toggle = scale.querySelector('.unit-toggle');
     const steps = scale.querySelectorAll('.step-btn');
+
     function isUnidade(){ return unitEl.textContent === 'un'; }
     function getVal(){
       const v = parseFloat(input.value.replace(',', '.'));
@@ -1537,10 +1514,33 @@
     function setVal(v){
       input.value = isUnidade() ? String(Math.max(0, Math.round(v))) : v.toFixed(3).replace('.', ',');
     }
+
+    if(toggle){
+      toggle.addEventListener('click', e => {
+        if(e.target.tagName !== 'DIV') return;
+        toggle.querySelectorAll('div').forEach(d => d.classList.remove('active'));
+        e.target.classList.add('active');
+        const unit = e.target.textContent.toLowerCase();
+        unitEl.textContent = unit;
+        const v = getVal();
+        input.value = unit === 'un' ? String(Math.round(v)) : v.toFixed(3).replace('.', ',');
+        input.setAttribute('inputmode', unit === 'un' ? 'numeric' : 'decimal');
+      });
+    }
+
+    input.addEventListener('input', () => {
+      if(isUnidade()){
+        const cleaned = input.value.replace(/[^0-9]/g, '');
+        if(cleaned !== input.value) input.value = cleaned;
+      }
+    });
+    input.addEventListener('blur', () => { if(input.value.trim() !== '') setVal(getVal()); });
+
     if(steps[0]) steps[0].addEventListener('click', () => setVal(getVal() - (isUnidade() ? 1 : 0.05)));
     if(steps[1]) steps[1].addEventListener('click', () => setVal(getVal() + (isUnidade() ? 1 : 0.05)));
-    input.addEventListener('blur', () => { if(input.value.trim() !== '') setVal(getVal()); });
-  });
+  }
+
+  document.querySelectorAll('.scale').forEach(attachScaleBehavior);
 
   // remove insumo row
   document.querySelectorAll('.insumo-row .rm').forEach(rm => {
@@ -1558,12 +1558,23 @@
         </div>
         <div class="rm">✕</div>
       </div>
-      <div class="insumo-bottom">
-        <input type="text" class="insumo-qtd" inputmode="decimal" value="0,000">
-        <span class="insumo-unit">kg</span>
+      <div class="scale scale-compact">
+        <div class="readout">
+          <input type="text" inputmode="decimal" class="readout-input" value="0,000"> <span class="unit">kg</span>
+        </div>
+        <div class="stepper-row">
+          <div class="step-btn">–</div>
+          <div class="unit-toggle">
+            <div class="active">KG</div>
+            <div>ML</div>
+            <div>UN</div>
+          </div>
+          <div class="step-btn">+</div>
+        </div>
       </div>`;
     row.querySelector('.rm').addEventListener('click', () => row.remove());
     attachAutocomplete(row.querySelector('.produto-ac'));
+    attachScaleBehavior(row.querySelector('.scale'));
     return row;
   }
 
