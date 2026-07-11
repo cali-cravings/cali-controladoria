@@ -478,6 +478,15 @@
     border-color:#7BE79A;
     box-shadow: 0 0 16px rgba(123,231,154,0.55);
   }
+  .qty-edit-btn{
+    margin-top:14px;
+    text-align:center;
+    color: var(--steel);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
 
   .photo-box{
     border:1.5px dashed var(--line);
@@ -776,6 +785,7 @@
           </div>
           <div class="step-btn">+</div>
         </div>
+        <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
       </div>
     </div>
     <div class="field">
@@ -867,6 +877,7 @@
           </div>
           <div class="step-btn">+</div>
         </div>
+        <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
       </div>
     </div>
     <div style="height:70px"></div>
