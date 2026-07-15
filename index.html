@@ -24,6 +24,8 @@
     --waste-dim: #6b4f2c;
     --prod: #6B9B7C;
     --prod-dim: #395143;
+    --transform: #5FA8D3;
+    --transform-dim: #2c4a5c;
     --text: #F0EDE6;
     --text-dim: #A6ACA8;
     --line: #3A3F3C;
@@ -169,6 +171,13 @@
   }
   #home .btn-prod .icon{ background: var(--prod); color:#132018;}
   #home .btn-prod .tag{color: var(--prod);}
+
+  #home .btn-transform{
+    background: linear-gradient(135deg, var(--transform-dim), #1b2e38);
+    border:1px solid var(--transform);
+  }
+  #home .btn-transform .icon{ background: var(--transform); color:#0b1f2b;}
+  #home .btn-transform .tag{color: var(--transform);}
 
   #home .btn-report{
     background: linear-gradient(135deg, #33383a, #23272a);
@@ -441,6 +450,7 @@
   }
   .chip.sel-waste{background: var(--waste); border-color:var(--waste); color:#241a0d; font-weight:600;}
   .chip.sel-prod{background: var(--prod); border-color:var(--prod); color:#132018; font-weight:600;}
+  .chip.sel-transform{background: var(--transform); border-color:var(--transform); color:#0b1f2b; font-weight:600;}
 
   /* scale-style quantity stepper */
   .scale{
@@ -670,6 +680,7 @@
   }
   .submit-btn.waste{background: var(--waste); color:#241a0d;}
   .submit-btn.prod{background: var(--prod); color:#132018;}
+  .submit-btn.transform{background: var(--transform); color:#0b1f2b;}
 
   .wizard-btn{
     width:100%;
@@ -714,6 +725,7 @@
   }
   .chit .stamp.waste-c{color:var(--waste);}
   .chit .stamp.prod-c{color:var(--prod);}
+  .chit .stamp.transform-c{color:var(--transform);}
   .chit .detail{color:var(--text-dim); font-size:13px; line-height:1.6; font-family:'IBM Plex Mono', monospace;}
   .chit .checkicon{font-size:44px;}
   .home-link{
@@ -758,6 +770,15 @@
       <div class="label-group">
         <div class="tag">Mise en place</div>
         <div class="title">Lançar Produção</div>
+      </div>
+      <div class="arrow">›</div>
+    </button>
+
+    <button class="big-btn btn-transform" onclick="openScreen('formTransform','Transformação','LANÇAMENTO')">
+      <div class="icon">⇄</div>
+      <div class="label-group">
+        <div class="tag">Bruto → Produção / Funcionário</div>
+        <div class="title">Lançar Transformação</div>
       </div>
       <div class="arrow">›</div>
     </button>
@@ -910,6 +931,91 @@
     <div style="height:70px"></div>
   </div>
 
+  <!-- FORM TRANSFORMACAO -->
+  <div class="screen" id="formTransform">
+    <div class="field">
+      <label>Data</label>
+      <input type="date" id="transformData">
+    </div>
+    <div class="field">
+      <label>Setor</label>
+      <div class="chip-row" id="transformSetorRow">
+        <div class="chip sel-transform">Cozinha</div>
+        <div class="chip">Bar</div>
+        <div class="chip">Masha Adm</div>
+        <div class="chip">Masha Pier</div>
+        <div class="chip">Cali Café</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Produto de origem (bruto) <span class="req">*</span></label>
+      <div class="ac-wrap">
+        <input type="text" id="transformProduto" class="produto-ac" autocomplete="off" placeholder="Ex: Sobrepaleta, Filé Mignon...">
+      </div>
+    </div>
+    <div class="field">
+      <label>Quantidade utilizada</label>
+      <div class="scale">
+        <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="transformQtd" value="0,000"> <span class="unit">kg</span></div>
+        <div class="stepper-row">
+          <div class="step-btn">–</div>
+          <div class="unit-toggle">
+            <div class="active">KG</div>
+            <div>ML</div>
+            <div>UN</div>
+          </div>
+          <div class="step-btn">+</div>
+        </div>
+        <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Vira o quê? <span class="req">*</span></label>
+      <div class="chip-row" id="transformDestinoRow">
+        <div class="chip sel-transform">Produção</div>
+        <div class="chip">Comida de Funcionário</div>
+      </div>
+    </div>
+
+    <div id="transformProducaoBox">
+      <div class="field">
+        <label>Vira qual item? <span class="req">*</span></label>
+        <div class="ac-wrap">
+          <input type="text" id="transformItemFinal" class="produto-ac" autocomplete="off" placeholder="Ex: Pulled Pork (porção)...">
+        </div>
+      </div>
+      <div class="field">
+        <label>Rendimento</label>
+        <div class="scale">
+          <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="transformRendimento" style="color:#D7E9FF" value="0,000"> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle">
+              <div class="active">KG</div>
+              <div>ML</div>
+              <div>UN</div>
+            </div>
+            <div class="step-btn">+</div>
+          </div>
+          <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="transformFuncionarioBox" style="display:none;">
+      <div class="field">
+        <label>Observação (opcional)</label>
+        <input type="text" id="transformObs" placeholder="Ex: refeição de 8 pessoas...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Responsável</label>
+      <input type="text" id="transformResponsavel" placeholder="Nome do colaborador">
+    </div>
+    <div style="height:70px"></div>
+  </div>
+
   <!-- CONSULTA -->
   <div class="screen" id="consulta">
     <div id="consultaList"></div>
@@ -923,11 +1029,26 @@
         <div class="chip-row" id="reportTypeRow">
           <div class="chip sel-waste">Desperdício</div>
           <div class="chip">Produção</div>
+          <div class="chip">Transformação</div>
         </div>
       </div>
       <button class="wizard-btn wizard-btn-waste" onclick="reportGoStep(2)">Continuar</button>
     </div>
     <div id="reportStep2" style="display:none;">
+      <div class="field">
+        <label>Qual setor?</label>
+        <div class="chip-row" id="reportSetorRow">
+          <div class="chip sel-prod">Todos</div>
+          <div class="chip">Cozinha</div>
+          <div class="chip">Bar</div>
+          <div class="chip">Masha Adm</div>
+          <div class="chip">Masha Pier</div>
+          <div class="chip">Cali Café</div>
+        </div>
+      </div>
+      <button class="wizard-btn wizard-btn-waste" onclick="reportGoStep(3)">Continuar</button>
+    </div>
+    <div id="reportStep3" style="display:none;">
       <div class="field">
         <label>De</label>
         <input type="date" id="reportDateFrom">
@@ -936,9 +1057,9 @@
         <label>Até</label>
         <input type="date" id="reportDateTo">
       </div>
-      <button class="wizard-btn wizard-btn-waste" onclick="reportGoStep(3)">Continuar</button>
+      <button class="wizard-btn wizard-btn-waste" onclick="reportGoStep(4)">Continuar</button>
     </div>
-    <div id="reportStep3" style="display:none;">
+    <div id="reportStep4" style="display:none;">
       <div class="field" id="reportSummary"></div>
       <button class="wizard-btn wizard-btn-prod" onclick="downloadReport()">⬇ Baixar Relatório (Excel/CSV)</button>
     </div>
@@ -964,6 +1085,9 @@
   </div>
   <div class="footer-bar" id="footerProd" style="display:none;">
     <button class="submit-btn prod" onclick="submitForm('prod')">Registrar Produção</button>
+  </div>
+  <div class="footer-bar" id="footerTransform" style="display:none;">
+    <button class="submit-btn transform" onclick="submitForm('transform')">Registrar Transformação</button>
   </div>
 
 </div>
@@ -1069,6 +1193,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('footerWaste').style.display = 'none';
     document.getElementById('footerProd').style.display = 'none';
+    document.getElementById('footerTransform').style.display = 'none';
     document.getElementById('backBtn').classList.remove('show');
   }
   function openScreen(id, title, eyebrow){
@@ -1079,6 +1204,10 @@
     document.getElementById('backBtn').classList.add('show');
     if(id === 'formWaste') document.getElementById('footerWaste').style.display = 'block';
     if(id === 'formProd') document.getElementById('footerProd').style.display = 'block';
+    if(id === 'formTransform') document.getElementById('footerTransform').style.display = 'block';
+    if(id === 'formTransform' && !document.getElementById('transformData').value){
+      document.getElementById('transformData').value = todayStr();
+    }
   }
   function goHome(){
     hideAll();
@@ -1187,16 +1316,18 @@
     document.getElementById('reportStep1').style.display = step === 1 ? 'block' : 'none';
     document.getElementById('reportStep2').style.display = step === 2 ? 'block' : 'none';
     document.getElementById('reportStep3').style.display = step === 3 ? 'block' : 'none';
-    if(step === 2 && !document.getElementById('reportDateFrom').value){
+    document.getElementById('reportStep4').style.display = step === 4 ? 'block' : 'none';
+    if(step === 3 && !document.getElementById('reportDateFrom').value){
       document.getElementById('reportDateFrom').value = todayStr();
       document.getElementById('reportDateTo').value = todayStr();
     }
-    if(step === 3){
+    if(step === 4){
       const type = getSelectedChip('reportTypeRow');
+      const setor = getSelectedChip('reportSetorRow');
       const from = document.getElementById('reportDateFrom').value;
       const to = document.getElementById('reportDateTo').value;
       document.getElementById('reportSummary').innerHTML =
-        `<label>Resumo do relatório</label><div style="color:var(--text-dim); font-size:14px; line-height:1.8;">Tipo: <b style="color:var(--text)">${type}</b><br>Período: <b style="color:var(--text)">${from}</b> até <b style="color:var(--text)">${to}</b></div>`;
+        `<label>Resumo do relatório</label><div style="color:var(--text-dim); font-size:14px; line-height:1.8;">Tipo: <b style="color:var(--text)">${type}</b><br>Setor: <b style="color:var(--text)">${setor}</b><br>Período: <b style="color:var(--text)">${from}</b> até <b style="color:var(--text)">${to}</b></div>`;
     }
   }
 
@@ -1208,7 +1339,7 @@
 
   async function downloadReport(){
     const type = getSelectedChip('reportTypeRow');
-    const isWaste = type === 'Desperdício';
+    const setor = getSelectedChip('reportSetorRow');
     const from = document.getElementById('reportDateFrom').value;
     const to = document.getElementById('reportDateTo').value;
 
@@ -1217,10 +1348,15 @@
       return;
     }
 
-    const col = isWaste ? 'desperdicios' : 'producoes';
+    const colMap = { 'Desperdício': 'desperdicios', 'Produção': 'producoes', 'Transformação': 'transformacoes' };
+    const col = colMap[type];
+    let query = db.collection(col).where('data', '>=', from).where('data', '<=', to);
+    if(setor && setor !== 'Todos'){
+      query = query.where('setor', '==', setor);
+    }
     let snap;
     try{
-      snap = await db.collection(col).where('data', '>=', from).where('data', '<=', to).get();
+      snap = await query.get();
     }catch(e){
       console.error(e);
       alert('Erro ao consultar os dados: ' + e.message);
@@ -1228,18 +1364,24 @@
     }
 
     let rows;
-    if(isWaste){
+    if(type === 'Desperdício'){
       rows = [['Data','Setor','Turno','Produto','Motivo','Quantidade','Unidade','Responsável','Criado em']];
       snap.forEach(doc => {
         const d = doc.data();
         rows.push([d.data, d.setor, d.turno, d.produto, d.motivo, d.quantidade, d.unidade, d.responsavel, d.criadoEm]);
       });
-    } else {
+    } else if(type === 'Produção'){
       rows = [['Data','Setor','Item Produzido','Insumos Utilizados','Rendimento','Unidade','Responsável','Criado em']];
       snap.forEach(doc => {
         const d = doc.data();
         const insumosTxt = (d.insumos || []).map(i => `${i.produto} (${i.quantidade}${i.unidade})`).join(' | ');
         rows.push([d.data, d.setor, d.item, insumosTxt, d.rendimento, d.unidade, d.responsavel, d.criadoEm]);
+      });
+    } else {
+      rows = [['Data','Setor','Produto de Origem','Quantidade Origem','Unidade Origem','Vira o quê','Item Final','Rendimento','Unidade Rendimento','Observação','Responsável','Criado em']];
+      snap.forEach(doc => {
+        const d = doc.data();
+        rows.push([d.data, d.setor, d.produtoOrigem, d.quantidadeOrigem, d.unidadeOrigem, d.destino, d.itemFinal, d.rendimento, d.unidadeRendimento, d.observacao, d.responsavel, d.criadoEm]);
       });
     }
 
@@ -1253,7 +1395,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${isWaste ? 'desperdicios' : 'producoes'}_${from}_a_${to}.csv`;
+    a.download = `${col}_${from}_a_${to}.csv`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1263,7 +1405,7 @@
   function getSelectedChip(rowId){
     const row = document.getElementById(rowId);
     if(!row) return '';
-    const sel = row.querySelector('.chip.sel-waste, .chip.sel-prod');
+    const sel = row.querySelector('.chip.sel-waste, .chip.sel-prod, .chip.sel-transform');
     return sel ? sel.textContent.trim() : '';
   }
 
@@ -1398,7 +1540,7 @@
       document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
       document.getElementById('topTitle').textContent = 'Desperdício';
 
-    } else {
+    } else if(type === 'prod'){
       const setor = getSelectedChip('prodSetorRow');
       const responsavel = document.getElementById('prodResponsavel').value;
       const item = document.getElementById('prodItem').value;
@@ -1441,6 +1583,64 @@
       document.getElementById('confDetail').innerHTML = `${data} · ${setor}<br>${item} · ${rendimento} ${unidade}<br>Responsável: ${responsavel || '—'}`;
       document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
       document.getElementById('topTitle').textContent = 'Produção';
+
+    } else if(type === 'transform'){
+      const setor = getSelectedChip('transformSetorRow');
+      const produtoOrigem = document.getElementById('transformProduto').value;
+      const qtdOrigem = document.getElementById('transformQtd').value;
+      const unidadeOrigem = document.getElementById('transformQtd').closest('.scale').querySelector('.unit-toggle .active').textContent;
+      const destino = getSelectedChip('transformDestinoRow');
+      const responsavel = document.getElementById('transformResponsavel').value;
+      const data = document.getElementById('transformData').value;
+
+      if(!produtoOrigem.trim()){
+        alert('Informe o produto de origem (o item bruto que está sendo transformado).');
+        document.getElementById('transformProduto').scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+
+      let itemFinal = '', rendimento = '', unidadeRendimento = '', observacao = '';
+      if(destino === 'Produção'){
+        itemFinal = document.getElementById('transformItemFinal').value;
+        rendimento = document.getElementById('transformRendimento').value;
+        unidadeRendimento = document.getElementById('transformRendimento').closest('.scale').querySelector('.unit-toggle .active').textContent;
+        if(!itemFinal.trim()){
+          alert('Informe em qual item essa transformação se transforma.');
+          document.getElementById('transformItemFinal').scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+      } else {
+        observacao = document.getElementById('transformObs').value;
+      }
+
+      const registro = { data, setor, produtoOrigem, quantidadeOrigem: qtdOrigem, unidadeOrigem, destino, itemFinal, rendimento, unidadeRendimento, observacao, responsavel, criadoEm: new Date().toISOString() };
+
+      if(firebaseReady){
+        showLoading('Registrando transformação…');
+        updateLoadingProgress(60);
+        try{
+          await db.collection('transformacoes').add(registro);
+        }catch(e){
+          console.error(e);
+          hideLoading();
+          alert('Erro ao salvar no Firebase: ' + e.message);
+          return;
+        }
+        updateLoadingProgress(100);
+        await new Promise(r => setTimeout(r, 200));
+        hideLoading();
+      }
+
+      hideAll();
+      document.getElementById('confirm').classList.add('active');
+      document.getElementById('backBtn').classList.add('show');
+      document.getElementById('confStamp').className = 'stamp transform-c';
+      document.getElementById('confStamp').textContent = 'TRANSFORMAÇÃO REGISTRADA';
+      document.getElementById('confDetail').innerHTML = destino === 'Produção'
+        ? `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → ${itemFinal}<br>Rendimento: ${rendimento} ${unidadeRendimento} · Responsável: ${responsavel || '—'}`
+        : `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → Comida de Funcionário<br>Responsável: ${responsavel || '—'}`;
+      document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
+      document.getElementById('topTitle').textContent = 'Transformação';
     }
   }
 
@@ -1462,9 +1662,14 @@
     row.addEventListener('click', e => {
       if(!e.target.classList.contains('chip')) return;
       let selClass;
+      const inTransform = document.getElementById('formTransform').contains(row);
       if(row.id === 'reportTypeRow'){
-        selClass = e.target.textContent.trim() === 'Desperdício' ? 'sel-waste' : 'sel-prod';
-        row.querySelectorAll('.chip').forEach(c => c.classList.remove('sel-waste', 'sel-prod'));
+        const txt = e.target.textContent.trim();
+        selClass = txt === 'Desperdício' ? 'sel-waste' : (txt === 'Transformação' ? 'sel-transform' : 'sel-prod');
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('sel-waste', 'sel-prod', 'sel-transform'));
+      } else if(inTransform){
+        selClass = 'sel-transform';
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('sel-transform'));
       } else {
         const inWaste = document.getElementById('formWaste').contains(row);
         selClass = inWaste ? 'sel-waste' : 'sel-prod';
@@ -1481,6 +1686,13 @@
         } else {
           box.style.display = 'none';
         }
+      }
+
+      // mostra/esconde as caixas condicionais da transformação (Produção vs Comida de Funcionário)
+      if(row.id === 'transformDestinoRow'){
+        const destino = e.target.textContent.trim();
+        document.getElementById('transformProducaoBox').style.display = destino === 'Produção' ? 'block' : 'none';
+        document.getElementById('transformFuncionarioBox').style.display = destino === 'Comida de Funcionário' ? 'block' : 'none';
       }
     });
   });
