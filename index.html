@@ -124,19 +124,19 @@
   .big-btn{
     border:none;
     border-radius:14px;
-    padding:26px 22px;
+    padding:22px 20px;
     margin-top:18px;
     display:flex;
     align-items:center;
-    gap:18px;
+    gap:16px;
     cursor:pointer;
     text-align:left;
     width:100%;
     position:relative;
-    overflow:hidden;
+    overflow:visible;
   }
   .big-btn .icon{
-    font-size:32px;
+    font-size:30px;
     width:56px; height:56px;
     border-radius:12px;
     display:flex; align-items:center; justify-content:center;
@@ -152,11 +152,12 @@
   }
   .big-btn .title{
     font-family:'Bebas Neue', sans-serif;
-    font-size:26px;
-    line-height:1;
+    font-size:22px;
+    line-height:1.15;
     margin-top:4px;
+    word-break:break-word;
   }
-  .big-btn .arrow{font-size:22px; opacity:0.6;}
+  .big-btn .arrow{font-size:22px; opacity:0.6; align-self:center;}
 
   #home .btn-waste{
     background: linear-gradient(135deg, var(--waste-dim), #4a3620);
@@ -1209,11 +1210,25 @@
       document.getElementById('transformData').value = todayStr();
     }
   }
+  function resetPhotoBox(){
+    const box = document.getElementById('photoBox');
+    if(!box) return;
+    photoBlobToUpload = null;
+    box.classList.remove('filled');
+    box.style.backgroundImage = '';
+    box.style.borderColor = '';
+    box.style.color = '';
+    box.style.textShadow = '';
+    box.innerHTML = '<span class="picon">📷</span>Toque para abrir a câmera';
+    document.getElementById('photoInput').value = '';
+  }
+
   function goHome(){
     hideAll();
     document.getElementById('home').classList.add('active');
     document.getElementById('topTitle').textContent = 'Controladoria Operacional';
     document.getElementById('topEyebrow').textContent = 'CALI CRAVINGS';
+    resetPhotoBox();
   }
 
   function openConsulta(type){
@@ -1359,7 +1374,13 @@
       snap = await query.get();
     }catch(e){
       console.error(e);
-      alert('Erro ao consultar os dados: ' + e.message);
+      const linkMatch = e.message.match(/https:\/\/console\.firebase\.google\.com\S*/);
+      if(linkMatch){
+        window.open(linkMatch[0], '_blank');
+        alert('Esse filtro (data + setor) ainda não tem um índice pronto no banco — é normal na primeira vez.\n\nTentei abrir a página de criação em outra aba (se seu navegador bloqueou, copia esse link manualmente):\n\n' + linkMatch[0] + '\n\nClique em "Criar Índice" lá, espere uns 1-2 minutos, e tente gerar o relatório de novo aqui.');
+      } else {
+        alert('Erro ao consultar os dados: ' + e.message);
+      }
       return;
     }
 
@@ -1516,7 +1537,7 @@
         try{
           const docRef = await db.collection('desperdicios').add(registro);
           updateLoadingProgress(0);
-          const url = await uploadPhoto(photoInput.files[0], docRef.id);
+          const url = await uploadPhoto(photoBlobToUpload || photoInput.files[0], docRef.id);
           if(url) await docRef.update({ fotoUrl: url });
         }catch(e){
           console.error(e);
@@ -1798,25 +1819,63 @@
     });
   });
 
+  // ===================== COMPRESSÃO DE FOTO (mais leve e rápido pra subir) =====================
+  function compressImage(file, maxDim = 1280, quality = 0.75){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        let { width, height } = img;
+        if(width > maxDim || height > maxDim){
+          if(width > height){ height = Math.round(height * (maxDim / width)); width = maxDim; }
+          else { width = Math.round(width * (maxDim / height)); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(objUrl);
+        canvas.toBlob(blob => {
+          if(blob) resolve(blob); else reject(new Error('Falha ao comprimir imagem'));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('Não foi possível ler a foto')); };
+      img.src = objUrl;
+    });
+  }
+
+  let photoBlobToUpload = null;
+
   // photo box: opens the phone camera via file input (capture="environment")
   const photoBox = document.getElementById('photoBox');
   const photoInput = document.getElementById('photoInput');
   if(photoBox && photoInput){
     photoBox.addEventListener('click', () => photoInput.click());
-    photoInput.addEventListener('change', () => {
+    photoInput.addEventListener('change', async () => {
       if(photoInput.files && photoInput.files[0]){
-        const reader = new FileReader();
-        reader.onload = e => {
-          photoBox.style.backgroundImage = `url(${e.target.result})`;
+        photoBox.classList.remove('filled');
+        photoBox.style.backgroundImage = '';
+        photoBox.innerHTML = '<span class="picon">⏳</span>Otimizando foto…';
+        try{
+          const original = photoInput.files[0];
+          const compressed = await compressImage(original);
+          photoBlobToUpload = compressed;
+          const kbOriginal = Math.round(original.size / 1024);
+          const kbFinal = Math.round(compressed.size / 1024);
+          const previewUrl = URL.createObjectURL(compressed);
+          photoBox.style.backgroundImage = `url(${previewUrl})`;
           photoBox.style.backgroundSize = 'cover';
           photoBox.style.backgroundPosition = 'center';
           photoBox.style.borderColor = 'var(--waste)';
           photoBox.style.color = '#fff';
           photoBox.style.textShadow = '0 1px 6px rgba(0,0,0,0.85)';
           photoBox.classList.add('filled');
-          photoBox.innerHTML = '<span class="picon">✓</span>Foto anexada — toque para refazer';
-        };
-        reader.readAsDataURL(photoInput.files[0]);
+          photoBox.innerHTML = `<span class="picon">✓</span>Foto anexada (${kbOriginal}KB → ${kbFinal}KB) — toque para refazer`;
+        }catch(e){
+          console.error(e);
+          photoBlobToUpload = null;
+          photoBox.innerHTML = '<span class="picon">⚠</span>Erro ao processar a foto — toque para tentar de novo';
+        }
       }
     });
   }
