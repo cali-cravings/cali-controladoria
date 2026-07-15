@@ -211,33 +211,36 @@
   .today-strip{
     margin-top:28px;
     display:flex;
-    gap:10px;
+    gap:8px;
   }
   .today-card{
     flex:1;
+    min-width:0;
     background: var(--surface);
     border:1px solid var(--line);
     border-radius:14px;
-    padding:16px 16px 14px 16px;
+    padding:14px 10px 12px 12px;
     position:relative;
     overflow:hidden;
   }
   .today-card.waste-card{ border-color: rgba(224,164,88,0.5); background: linear-gradient(135deg, rgba(224,164,88,0.12), var(--surface) 60%); }
   .today-card.prod-card{ border-color: rgba(107,155,124,0.5); background: linear-gradient(135deg, rgba(107,155,124,0.12), var(--surface) 60%); }
+  .today-card.transform-card{ border-color: rgba(95,168,211,0.5); background: linear-gradient(135deg, rgba(95,168,211,0.12), var(--surface) 60%); }
   .today-card .n{
     font-family:'Bebas Neue', sans-serif;
-    font-size:28px;
+    font-size:26px;
     font-weight:400;
     letter-spacing:0.01em;
     line-height:1;
   }
   .today-card .l{
-    font-size:11px;
+    font-size:9.5px;
     color:var(--text-dim);
     margin-top:6px;
     font-family:'IBM Plex Mono', monospace;
-    letter-spacing:0.04em;
+    letter-spacing:0.02em;
     text-transform:uppercase;
+    line-height:1.3;
   }
   .today-card.clickable{cursor:pointer; transition:transform .12s ease, border-color .12s ease;}
   .today-card.clickable:active{transform:scale(0.96);}
@@ -787,11 +790,15 @@
     <div class="today-strip">
       <div class="today-card clickable waste-card" id="wasteTodayCard" onclick="openConsulta('waste')">
         <div class="n" id="wasteTodayCount" style="color:var(--waste)">–</div>
-        <div class="l">desperdícios hoje</div>
+        <div class="l">desperdícios na semana</div>
       </div>
       <div class="today-card clickable prod-card" id="prodTodayCard" onclick="openConsulta('prod')">
         <div class="n" id="prodTodayCount" style="color:var(--prod)">–</div>
-        <div class="l">produções hoje</div>
+        <div class="l">produções na semana</div>
+      </div>
+      <div class="today-card clickable transform-card" id="transformTodayCard" onclick="openConsulta('transform')">
+        <div class="n" id="transformTodayCount" style="color:var(--transform)">–</div>
+        <div class="l">transformações na semana</div>
       </div>
     </div>
 
@@ -1235,9 +1242,12 @@
     hideAll();
     document.getElementById('consulta').classList.add('active');
     document.getElementById('backBtn').classList.add('show');
-    const isWaste = type === 'waste';
+    const colMap = { waste: 'desperdicios', prod: 'producoes', transform: 'transformacoes' };
+    const titleMap = { waste: 'Todos os desperdícios', prod: 'Todas as produções', transform: 'Todas as transformações' };
+    const emptyMap = { waste: ' desperdício', prod: 'a produção', transform: 'a transformação' };
+    const col = colMap[type];
     document.getElementById('topEyebrow').textContent = 'CONSULTA';
-    document.getElementById('topTitle').textContent = isWaste ? 'Todos os desperdícios' : 'Todas as produções';
+    document.getElementById('topTitle').textContent = titleMap[type];
 
     const list = document.getElementById('consultaList');
     list.innerHTML = '<div class="consulta-loading">Carregando…</div>';
@@ -1247,10 +1257,9 @@
       return;
     }
 
-    const col = isWaste ? 'desperdicios' : 'producoes';
     db.collection(col).get().then(snap => {
       if(snap.empty){
-        list.innerHTML = `<div class="consulta-empty">Nenhum${isWaste ? ' desperdício' : 'a produção'} lançado ainda.</div>`;
+        list.innerHTML = `<div class="consulta-empty">Nenhum${emptyMap[type]} lançado ainda.</div>`;
         return;
       }
       const docs = snap.docs.slice().sort((a, b) => {
@@ -1262,18 +1271,27 @@
         const d = doc.data();
         const hora = d.criadoEm ? new Date(d.criadoEm).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour: '2-digit', minute: '2-digit' }) : '--:--';
         const delBtn = `<div class="delete-btn" onclick="confirmDelete('${col}','${doc.id}')">🗑 Excluir</div>`;
-        if(isWaste){
+        if(type === 'waste'){
           const fotoBtn = d.fotoUrl ? `<div class="download-btn" onclick="openPhotoModal('${d.fotoUrl.replace(/'/g, "\\'")}')">⬇ Ver / baixar foto</div>` : '';
           return `<div class="consulta-item waste-item" id="item-${doc.id}">
             <div class="top-row"><span class="produto">${d.produto || '—'}</span><span class="hora">${hora}</span></div>
             <div class="meta">${d.setor || '—'} · ${d.turno || '—'}<br>Motivo: ${d.motivo || '—'}<br>Qtd: <span class="qtd">${d.quantidade || '0'} ${d.unidade || ''}</span> · Responsável: ${d.responsavel || '—'}</div>
             <div class="item-actions">${fotoBtn}${delBtn}</div>
           </div>`;
-        } else {
+        } else if(type === 'prod'){
           const insumosTxt = (d.insumos || []).map(i => `${i.produto} (${i.quantidade}${i.unidade})`).join(', ');
           return `<div class="consulta-item prod-item" id="item-${doc.id}">
             <div class="top-row"><span class="produto">${d.item || '—'}</span><span class="hora">${hora}</span></div>
             <div class="meta">${d.setor || '—'}<br>Rendimento: <span class="qtd">${d.rendimento || '0'} ${d.unidade || ''}</span> · Responsável: ${d.responsavel || '—'}${insumosTxt ? '<br>Insumos: ' + insumosTxt : ''}</div>
+            <div class="item-actions">${delBtn}</div>
+          </div>`;
+        } else {
+          const destinoTxt = d.destino === 'Produção'
+            ? `→ ${d.itemFinal || '—'} · Rendimento: <span class="qtd">${d.rendimento || '0'} ${d.unidadeRendimento || ''}</span>`
+            : `→ Comida de Funcionário${d.observacao ? ' (' + d.observacao + ')' : ''}`;
+          return `<div class="consulta-item transform-item" id="item-${doc.id}">
+            <div class="top-row"><span class="produto">${d.produtoOrigem || '—'}</span><span class="hora">${hora}</span></div>
+            <div class="meta">${d.setor || '—'}<br>Origem: <span class="qtd">${d.quantidadeOrigem || '0'} ${d.unidadeOrigem || ''}</span> ${destinoTxt}<br>Responsável: ${d.responsavel || '—'}</div>
             <div class="item-actions">${delBtn}</div>
           </div>`;
         }
@@ -1665,17 +1683,40 @@
     }
   }
 
-  // real-time "hoje" counters
+  // ===================== INTERVALO DA SEMANA ATUAL (segunda a domingo) =====================
+  function weekRange(){
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0=domingo, 1=segunda, ... 6=sábado
+    const diffToMonday = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - diffToMonday);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const fmt = d => {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${yyyy}-${mm}-${dd}`;
+    };
+    return { start: fmt(monday), end: fmt(sunday) };
+  }
+
+  // real-time "semana atual" counters
   if(firebaseReady){
-    db.collection('desperdicios').where('data','==', todayStr()).onSnapshot(snap => {
+    const { start: weekStart, end: weekEnd } = weekRange();
+    db.collection('desperdicios').where('data','>=', weekStart).where('data','<=', weekEnd).onSnapshot(snap => {
       document.getElementById('wasteTodayCount').textContent = snap.size;
     });
-    db.collection('producoes').where('data','==', todayStr()).onSnapshot(snap => {
+    db.collection('producoes').where('data','>=', weekStart).where('data','<=', weekEnd).onSnapshot(snap => {
       document.getElementById('prodTodayCount').textContent = snap.size;
+    });
+    db.collection('transformacoes').where('data','>=', weekStart).where('data','<=', weekEnd).onSnapshot(snap => {
+      document.getElementById('transformTodayCount').textContent = snap.size;
     });
   } else {
     document.getElementById('wasteTodayCount').textContent = '0';
     document.getElementById('prodTodayCount').textContent = '0';
+    document.getElementById('transformTodayCount').textContent = '0';
   }
 
   // chip select behavior (single select per row)
