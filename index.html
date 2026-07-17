@@ -655,6 +655,8 @@
     font-size:24px;
     color: var(--text);
   }
+  .rendimento-card .rc-loss.rc-value{color: var(--danger); font-size:18px;}
+  .rendimento-card .rc-loss.rc-label{color: var(--danger); opacity:0.85;}
 
   /* custom searchable autocomplete (replaces native datalist for 1000+ products) */
   .ac-wrap{position:relative;}
@@ -1410,7 +1412,7 @@
             ? `→ ${d.itemFinal || '—'} · Rendimento: <span class="qtd">${d.rendimento || '0'} ${d.unidadeRendimento || ''}</span>`
             : `→ Comida de Funcionário${d.observacao ? ' (' + d.observacao + ')' : ''}`;
           const peixeTxt = d.categoria === 'Peixe / Fruto do Mar'
-            ? `<br>🐟 Congelado: ${d.pesoCongelado || '0'}kg · Descongelado: ${d.pesoDescongelado || '—'}kg · Filé: ${d.pesoFile || '0'}kg<br>Rendimento: <b>${d.rendimentoCongeladoPct || '—'}%</b> sobre congelado${d.rendimentoDescongeladoPct ? ` · <b>${d.rendimentoDescongeladoPct}%</b> sobre descongelado` : ''}`
+            ? `<br>🐟 Congelado: ${d.pesoCongelado || '0'}kg · Descongelado: ${d.pesoDescongelado || '—'}kg · Filé: ${d.pesoFile || '0'}kg<br>Rendimento: <b>${d.rendimentoCongeladoPct || '—'}%</b> sobre congelado${d.rendimentoDescongeladoPct ? ` · <b>${d.rendimentoDescongeladoPct}%</b> sobre descongelado` : ''}<br>Perda: <b style="color:var(--danger)">${d.perdaCongeladoPct || '—'}%</b> sobre congelado${d.perdaDescongeladoPct ? ` · <b style="color:var(--danger)">${d.perdaDescongeladoPct}%</b> sobre descongelado` : ''}`
             : '';
           return `<div class="consulta-item transform-item" id="item-${doc.id}">
             <div class="top-row"><span class="produto">${d.produtoOrigem || '—'}</span><span class="hora">${hora}</span></div>
@@ -1540,10 +1542,10 @@
         rows.push([d.data, d.setor, d.item, insumosTxt, d.rendimento, d.unidade, d.responsavel, d.criadoEm]);
       });
     } else {
-      rows = [['Data','Setor','Produto de Origem','Categoria','Quantidade Origem','Unidade Origem','Vira o quê','Item Final','Rendimento','Unidade Rendimento','Observação','Peso Congelado','Peso Descongelado','Peso Cabeça','Peso Rabo/Espinha','Peso Pele/Raspas','Peso Filé','Rendimento % (congelado)','Rendimento % (descongelado)','Responsável','Criado em']];
+      rows = [['Data','Setor','Produto de Origem','Categoria','Quantidade Origem','Unidade Origem','Vira o quê','Item Final','Rendimento','Unidade Rendimento','Observação','Peso Congelado','Peso Descongelado','Peso Cabeça','Peso Rabo/Espinha','Peso Pele/Raspas','Peso Filé','Rendimento % (congelado)','Perda % (congelado)','Rendimento % (descongelado)','Perda % (descongelado)','Responsável','Criado em']];
       snap.forEach(doc => {
         const d = doc.data();
-        rows.push([d.data, d.setor, d.produtoOrigem, d.categoria || 'Padrão', d.quantidadeOrigem, d.unidadeOrigem, d.destino, d.itemFinal, d.rendimento, d.unidadeRendimento, d.observacao, d.pesoCongelado || '', d.pesoDescongelado || '', d.pesoCabeca || '', d.pesoRaboEspinha || '', d.pesoPeleRaspas || '', d.pesoFile || '', d.rendimentoCongeladoPct || '', d.rendimentoDescongeladoPct || '', d.responsavel, d.criadoEm]);
+        rows.push([d.data, d.setor, d.produtoOrigem, d.categoria || 'Padrão', d.quantidadeOrigem, d.unidadeOrigem, d.destino, d.itemFinal, d.rendimento, d.unidadeRendimento, d.observacao, d.pesoCongelado || '', d.pesoDescongelado || '', d.pesoCabeca || '', d.pesoRaboEspinha || '', d.pesoPeleRaspas || '', d.pesoFile || '', d.rendimentoCongeladoPct || '', d.perdaCongeladoPct || '', d.rendimentoDescongeladoPct || '', d.perdaDescongeladoPct || '', d.responsavel, d.criadoEm]);
       });
     }
 
@@ -1762,7 +1764,7 @@
       }
 
       let qtdOrigem, unidadeOrigem;
-      let pesoCongelado = '', pesoDescongelado = '', pesoCabeca = '', pesoRaboEspinha = '', pesoPeleRaspas = '', pesoFile = '', rendimentoCongeladoPct = '', rendimentoDescongeladoPct = '';
+      let pesoCongelado = '', pesoDescongelado = '', pesoCabeca = '', pesoRaboEspinha = '', pesoPeleRaspas = '', pesoFile = '', rendimentoCongeladoPct = '', rendimentoDescongeladoPct = '', perdaCongeladoPct = '', perdaDescongeladoPct = '';
 
       if(isPeixe){
         pesoCongelado = document.getElementById('pesoCongelado').value;
@@ -1789,6 +1791,8 @@
 
         rendimentoCongeladoPct = ((fileNum / congeladoNum) * 100).toFixed(1);
         rendimentoDescongeladoPct = descongeladoNum > 0 ? ((fileNum / descongeladoNum) * 100).toFixed(1) : '';
+        perdaCongeladoPct = (100 - rendimentoCongeladoPct).toFixed(1);
+        perdaDescongeladoPct = rendimentoDescongeladoPct !== '' ? (100 - rendimentoDescongeladoPct).toFixed(1) : '';
 
         qtdOrigem = pesoCongelado;
         unidadeOrigem = document.getElementById('pesoCongelado').closest('.scale').querySelector('.unit-toggle .active').textContent;
@@ -1820,7 +1824,7 @@
       if(isPeixe){
         Object.assign(registro, {
           pesoCongelado, pesoDescongelado, pesoCabeca, pesoRaboEspinha, pesoPeleRaspas, pesoFile,
-          rendimentoCongeladoPct, rendimentoDescongeladoPct
+          rendimentoCongeladoPct, rendimentoDescongeladoPct, perdaCongeladoPct, perdaDescongeladoPct
         });
       }
 
@@ -2011,11 +2015,15 @@
     }
     const pctCongelado = congelado > 0 ? ((file / congelado) * 100).toFixed(1) : null;
     const pctDescongelado = descongelado > 0 ? ((file / descongelado) * 100).toFixed(1) : null;
+    const perdaCongelado = pctCongelado !== null ? (100 - pctCongelado).toFixed(1) : null;
+    const perdaDescongelado = pctDescongelado !== null ? (100 - pctDescongelado).toFixed(1) : null;
     box.style.display = 'block';
     box.innerHTML = `<div class="rendimento-card">
       <div class="rc-title">Rendimento do filé</div>
       ${pctCongelado !== null ? `<div class="rc-row"><span class="rc-label">Sobre o peso congelado</span><span class="rc-value">${pctCongelado}%</span></div>` : ''}
+      ${perdaCongelado !== null ? `<div class="rc-row"><span class="rc-label rc-loss">Perda sobre o congelado</span><span class="rc-value rc-loss">${perdaCongelado}%</span></div>` : ''}
       ${pctDescongelado !== null ? `<div class="rc-row"><span class="rc-label">Sobre o peso descongelado</span><span class="rc-value">${pctDescongelado}%</span></div>` : ''}
+      ${perdaDescongelado !== null ? `<div class="rc-row"><span class="rc-label rc-loss">Perda sobre o descongelado</span><span class="rc-value rc-loss">${perdaDescongelado}%</span></div>` : ''}
     </div>`;
   }
   ['pesoCongelado','pesoDescongelado','pesoFile'].forEach(id => {
