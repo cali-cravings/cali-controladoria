@@ -628,6 +628,34 @@
   }
   .scale-compact .qty-edit-btn{display:none;}
 
+  .rendimento-card{
+    background: linear-gradient(150deg, var(--transform-dim), #16242c);
+    border:1px solid var(--transform);
+    border-radius:16px;
+    padding:16px 18px;
+    margin-top:6px;
+  }
+  .rendimento-card .rc-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color: var(--transform);
+    margin-bottom:8px;
+  }
+  .rendimento-card .rc-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:4px 0;
+  }
+  .rendimento-card .rc-label{font-size:13px; color:var(--text-dim);}
+  .rendimento-card .rc-value{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:24px;
+    color: var(--text);
+  }
+
   /* custom searchable autocomplete (replaces native datalist for 1000+ products) */
   .ac-wrap{position:relative;}
   .ac-list{
@@ -856,7 +884,7 @@
     <div class="field">
       <label>Quantidade</label>
       <div class="scale">
-        <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="wasteQtd" value="0,450"> <span class="unit">kg</span></div>
+        <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="wasteQtd" value=""> <span class="unit">kg</span></div>
         <div class="stepper-row">
           <div class="step-btn">–</div>
           <div class="unit-toggle">
@@ -923,7 +951,7 @@
     <div class="field">
       <label>Rendimento da produção (quantidade final)</label>
       <div class="scale">
-        <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="prodRendimento" style="color:#D7E9FF" value="2,150"> <span class="unit">kg</span></div>
+        <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="prodRendimento" style="color:#D7E9FF" value=""> <span class="unit">kg</span></div>
         <div class="stepper-row">
           <div class="step-btn">–</div>
           <div class="unit-toggle">
@@ -962,20 +990,100 @@
       </div>
     </div>
     <div class="field">
-      <label>Quantidade utilizada</label>
-      <div class="scale">
-        <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="transformQtd" value="0,000"> <span class="unit">kg</span></div>
-        <div class="stepper-row">
-          <div class="step-btn">–</div>
-          <div class="unit-toggle">
-            <div class="active">KG</div>
-            <div>ML</div>
-            <div>UN</div>
-          </div>
-          <div class="step-btn">+</div>
-        </div>
-        <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
+      <label>Categoria</label>
+      <div class="chip-row" id="transformCategoriaRow">
+        <div class="chip sel-transform">Padrão</div>
+        <div class="chip">Peixe / Fruto do Mar</div>
       </div>
+    </div>
+
+    <div id="transformQtdBox">
+      <div class="field">
+        <label>Quantidade utilizada</label>
+        <div class="scale">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="transformQtd" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle">
+              <div class="active">KG</div>
+              <div>ML</div>
+              <div>UN</div>
+            </div>
+            <div class="step-btn">+</div>
+          </div>
+          <div class="qty-edit-btn" onclick="const i=this.parentElement.querySelector('.readout-input'); i.focus(); i.select();">✎ Digitar valor</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="transformPeixeBox" style="display:none;">
+      <div class="field">
+        <label>Peso congelado <span class="req">*</span></label>
+        <div class="scale scale-compact">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="pesoCongelado" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso descongelado</label>
+        <div class="scale scale-compact">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="pesoDescongelado" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso da cabeça</label>
+        <div class="scale scale-compact">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="pesoCabeca" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso do rabo e espinha</label>
+        <div class="scale scale-compact">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="pesoRaboEspinha" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso da pele e raspas</label>
+        <div class="scale scale-compact">
+          <div class="readout"><input type="text" inputmode="decimal" class="readout-input" id="pesoPeleRaspas" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Peso do filé <span class="req">*</span></label>
+        <div class="scale scale-compact">
+          <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="pesoFile" style="color:#D7E9FF" value=""> <span class="unit">kg</span></div>
+          <div class="stepper-row">
+            <div class="step-btn">–</div>
+            <div class="unit-toggle"><div class="active">KG</div><div>ML</div><div>UN</div></div>
+            <div class="step-btn">+</div>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="rendimentoPeixeDisplay" style="display:none;"></div>
     </div>
     <div class="field">
       <label>Vira o quê? <span class="req">*</span></label>
@@ -995,7 +1103,7 @@
       <div class="field">
         <label>Rendimento</label>
         <div class="scale">
-          <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="transformRendimento" style="color:#D7E9FF" value="0,000"> <span class="unit">kg</span></div>
+          <div class="readout" style="color:#D7E9FF"><input type="text" inputmode="decimal" class="readout-input" id="transformRendimento" style="color:#D7E9FF" value=""> <span class="unit">kg</span></div>
           <div class="stepper-row">
             <div class="step-btn">–</div>
             <div class="unit-toggle">
@@ -1236,6 +1344,18 @@
     document.getElementById('topTitle').textContent = 'Controladoria Operacional';
     document.getElementById('topEyebrow').textContent = 'CALI CRAVINGS';
     resetPhotoBox();
+    resetTransformCategoria();
+  }
+
+  function resetTransformCategoria(){
+    const row = document.getElementById('transformCategoriaRow');
+    if(!row) return;
+    row.querySelectorAll('.chip').forEach(c => c.classList.remove('sel-transform'));
+    row.querySelector('.chip').classList.add('sel-transform'); // "Padrão" é sempre o primeiro
+    document.getElementById('transformQtdBox').style.display = 'block';
+    document.getElementById('transformPeixeBox').style.display = 'none';
+    const rd = document.getElementById('rendimentoPeixeDisplay');
+    if(rd){ rd.style.display = 'none'; rd.innerHTML = ''; }
   }
 
   function openConsulta(type){
@@ -1289,9 +1409,12 @@
           const destinoTxt = d.destino === 'Produção'
             ? `→ ${d.itemFinal || '—'} · Rendimento: <span class="qtd">${d.rendimento || '0'} ${d.unidadeRendimento || ''}</span>`
             : `→ Comida de Funcionário${d.observacao ? ' (' + d.observacao + ')' : ''}`;
+          const peixeTxt = d.categoria === 'Peixe / Fruto do Mar'
+            ? `<br>🐟 Congelado: ${d.pesoCongelado || '0'}kg · Descongelado: ${d.pesoDescongelado || '—'}kg · Filé: ${d.pesoFile || '0'}kg<br>Rendimento: <b>${d.rendimentoCongeladoPct || '—'}%</b> sobre congelado${d.rendimentoDescongeladoPct ? ` · <b>${d.rendimentoDescongeladoPct}%</b> sobre descongelado` : ''}`
+            : '';
           return `<div class="consulta-item transform-item" id="item-${doc.id}">
             <div class="top-row"><span class="produto">${d.produtoOrigem || '—'}</span><span class="hora">${hora}</span></div>
-            <div class="meta">${d.setor || '—'}<br>Origem: <span class="qtd">${d.quantidadeOrigem || '0'} ${d.unidadeOrigem || ''}</span> ${destinoTxt}<br>Responsável: ${d.responsavel || '—'}</div>
+            <div class="meta">${d.setor || '—'}<br>Origem: <span class="qtd">${d.quantidadeOrigem || '0'} ${d.unidadeOrigem || ''}</span> ${destinoTxt}<br>Responsável: ${d.responsavel || '—'}${peixeTxt}</div>
             <div class="item-actions">${delBtn}</div>
           </div>`;
         }
@@ -1417,10 +1540,10 @@
         rows.push([d.data, d.setor, d.item, insumosTxt, d.rendimento, d.unidade, d.responsavel, d.criadoEm]);
       });
     } else {
-      rows = [['Data','Setor','Produto de Origem','Quantidade Origem','Unidade Origem','Vira o quê','Item Final','Rendimento','Unidade Rendimento','Observação','Responsável','Criado em']];
+      rows = [['Data','Setor','Produto de Origem','Categoria','Quantidade Origem','Unidade Origem','Vira o quê','Item Final','Rendimento','Unidade Rendimento','Observação','Peso Congelado','Peso Descongelado','Peso Cabeça','Peso Rabo/Espinha','Peso Pele/Raspas','Peso Filé','Rendimento % (congelado)','Rendimento % (descongelado)','Responsável','Criado em']];
       snap.forEach(doc => {
         const d = doc.data();
-        rows.push([d.data, d.setor, d.produtoOrigem, d.quantidadeOrigem, d.unidadeOrigem, d.destino, d.itemFinal, d.rendimento, d.unidadeRendimento, d.observacao, d.responsavel, d.criadoEm]);
+        rows.push([d.data, d.setor, d.produtoOrigem, d.categoria || 'Padrão', d.quantidadeOrigem, d.unidadeOrigem, d.destino, d.itemFinal, d.rendimento, d.unidadeRendimento, d.observacao, d.pesoCongelado || '', d.pesoDescongelado || '', d.pesoCabeca || '', d.pesoRaboEspinha || '', d.pesoPeleRaspas || '', d.pesoFile || '', d.rendimentoCongeladoPct || '', d.rendimentoDescongeladoPct || '', d.responsavel, d.criadoEm]);
       });
     }
 
@@ -1626,8 +1749,8 @@
     } else if(type === 'transform'){
       const setor = getSelectedChip('transformSetorRow');
       const produtoOrigem = document.getElementById('transformProduto').value;
-      const qtdOrigem = document.getElementById('transformQtd').value;
-      const unidadeOrigem = document.getElementById('transformQtd').closest('.scale').querySelector('.unit-toggle .active').textContent;
+      const categoria = getSelectedChip('transformCategoriaRow') || 'Padrão';
+      const isPeixe = categoria === 'Peixe / Fruto do Mar';
       const destino = getSelectedChip('transformDestinoRow');
       const responsavel = document.getElementById('transformResponsavel').value;
       const data = document.getElementById('transformData').value;
@@ -1636,6 +1759,42 @@
         alert('Informe o produto de origem (o item bruto que está sendo transformado).');
         document.getElementById('transformProduto').scrollIntoView({behavior:'smooth', block:'center'});
         return;
+      }
+
+      let qtdOrigem, unidadeOrigem;
+      let pesoCongelado = '', pesoDescongelado = '', pesoCabeca = '', pesoRaboEspinha = '', pesoPeleRaspas = '', pesoFile = '', rendimentoCongeladoPct = '', rendimentoDescongeladoPct = '';
+
+      if(isPeixe){
+        pesoCongelado = document.getElementById('pesoCongelado').value;
+        pesoDescongelado = document.getElementById('pesoDescongelado').value;
+        pesoCabeca = document.getElementById('pesoCabeca').value;
+        pesoRaboEspinha = document.getElementById('pesoRaboEspinha').value;
+        pesoPeleRaspas = document.getElementById('pesoPeleRaspas').value;
+        pesoFile = document.getElementById('pesoFile').value;
+
+        const congeladoNum = parseNum('pesoCongelado');
+        const descongeladoNum = parseNum('pesoDescongelado');
+        const fileNum = parseNum('pesoFile');
+
+        if(congeladoNum <= 0){
+          alert('Informe o peso congelado do peixe/fruto do mar.');
+          document.getElementById('pesoCongelado').scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+        if(fileNum <= 0){
+          alert('Informe o peso do filé (produto final).');
+          document.getElementById('pesoFile').scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+
+        rendimentoCongeladoPct = ((fileNum / congeladoNum) * 100).toFixed(1);
+        rendimentoDescongeladoPct = descongeladoNum > 0 ? ((fileNum / descongeladoNum) * 100).toFixed(1) : '';
+
+        qtdOrigem = pesoCongelado;
+        unidadeOrigem = document.getElementById('pesoCongelado').closest('.scale').querySelector('.unit-toggle .active').textContent;
+      } else {
+        qtdOrigem = document.getElementById('transformQtd').value;
+        unidadeOrigem = document.getElementById('transformQtd').closest('.scale').querySelector('.unit-toggle .active').textContent;
       }
 
       let itemFinal = '', rendimento = '', unidadeRendimento = '', observacao = '';
@@ -1652,7 +1811,18 @@
         observacao = document.getElementById('transformObs').value;
       }
 
-      const registro = { data, setor, produtoOrigem, quantidadeOrigem: qtdOrigem, unidadeOrigem, destino, itemFinal, rendimento, unidadeRendimento, observacao, responsavel, criadoEm: new Date().toISOString() };
+      const registro = {
+        data, setor, produtoOrigem, categoria,
+        quantidadeOrigem: qtdOrigem, unidadeOrigem,
+        destino, itemFinal, rendimento, unidadeRendimento, observacao,
+        responsavel, criadoEm: new Date().toISOString()
+      };
+      if(isPeixe){
+        Object.assign(registro, {
+          pesoCongelado, pesoDescongelado, pesoCabeca, pesoRaboEspinha, pesoPeleRaspas, pesoFile,
+          rendimentoCongeladoPct, rendimentoDescongeladoPct
+        });
+      }
 
       if(firebaseReady){
         showLoading('Registrando transformação…');
@@ -1675,9 +1845,10 @@
       document.getElementById('backBtn').classList.add('show');
       document.getElementById('confStamp').className = 'stamp transform-c';
       document.getElementById('confStamp').textContent = 'TRANSFORMAÇÃO REGISTRADA';
+      const peixeInfo = isPeixe ? `<br>Rendimento (congelado): <b>${rendimentoCongeladoPct}%</b>` : '';
       document.getElementById('confDetail').innerHTML = destino === 'Produção'
-        ? `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → ${itemFinal}<br>Rendimento: ${rendimento} ${unidadeRendimento} · Responsável: ${responsavel || '—'}`
-        : `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → Comida de Funcionário<br>Responsável: ${responsavel || '—'}`;
+        ? `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → ${itemFinal}<br>Rendimento: ${rendimento} ${unidadeRendimento} · Responsável: ${responsavel || '—'}${peixeInfo}`
+        : `${data} · ${setor}<br>${produtoOrigem} (${qtdOrigem} ${unidadeOrigem}) → Comida de Funcionário<br>Responsável: ${responsavel || '—'}${peixeInfo}`;
       document.getElementById('topEyebrow').textContent = 'CONFIRMAÇÃO';
       document.getElementById('topTitle').textContent = 'Transformação';
     }
@@ -1756,6 +1927,14 @@
         document.getElementById('transformProducaoBox').style.display = destino === 'Produção' ? 'block' : 'none';
         document.getElementById('transformFuncionarioBox').style.display = destino === 'Comida de Funcionário' ? 'block' : 'none';
       }
+
+      // mostra/esconde a seção de peixe/fruto do mar (substitui a quantidade genérica)
+      if(row.id === 'transformCategoriaRow'){
+        const categoria = e.target.textContent.trim();
+        const isPeixe = categoria === 'Peixe / Fruto do Mar';
+        document.getElementById('transformQtdBox').style.display = isPeixe ? 'none' : 'block';
+        document.getElementById('transformPeixeBox').style.display = isPeixe ? 'block' : 'none';
+      }
     });
   });
 
@@ -1816,6 +1995,34 @@
 
   document.querySelectorAll('.scale').forEach(attachScaleBehavior);
 
+  // ===================== CÁLCULO AO VIVO DO RENDIMENTO DO PEIXE =====================
+  function parseNum(id){
+    const v = parseFloat((document.getElementById(id).value || '0').replace(',', '.'));
+    return isNaN(v) ? 0 : v;
+  }
+  function updateRendimentoPeixe(){
+    const congelado = parseNum('pesoCongelado');
+    const descongelado = parseNum('pesoDescongelado');
+    const file = parseNum('pesoFile');
+    const box = document.getElementById('rendimentoPeixeDisplay');
+    if(congelado <= 0 && descongelado <= 0){
+      box.style.display = 'none';
+      return;
+    }
+    const pctCongelado = congelado > 0 ? ((file / congelado) * 100).toFixed(1) : null;
+    const pctDescongelado = descongelado > 0 ? ((file / descongelado) * 100).toFixed(1) : null;
+    box.style.display = 'block';
+    box.innerHTML = `<div class="rendimento-card">
+      <div class="rc-title">Rendimento do filé</div>
+      ${pctCongelado !== null ? `<div class="rc-row"><span class="rc-label">Sobre o peso congelado</span><span class="rc-value">${pctCongelado}%</span></div>` : ''}
+      ${pctDescongelado !== null ? `<div class="rc-row"><span class="rc-label">Sobre o peso descongelado</span><span class="rc-value">${pctDescongelado}%</span></div>` : ''}
+    </div>`;
+  }
+  ['pesoCongelado','pesoDescongelado','pesoFile'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', updateRendimentoPeixe);
+  });
+
   // remove insumo row
   document.querySelectorAll('.insumo-row .rm').forEach(rm => {
     rm.addEventListener('click', () => rm.closest('.insumo-row').remove());
@@ -1834,7 +2041,7 @@
       </div>
       <div class="scale scale-compact">
         <div class="readout">
-          <input type="text" inputmode="decimal" class="readout-input" value="0,000"> <span class="unit">kg</span>
+          <input type="text" inputmode="decimal" class="readout-input" value=""> <span class="unit">kg</span>
         </div>
         <div class="stepper-row">
           <div class="step-btn">–</div>
@@ -1862,7 +2069,37 @@
 
   // ===================== COMPRESSÃO DE FOTO (mais leve e rápido pra subir) =====================
   function compressImage(file, maxDim = 1280, quality = 0.75){
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      // fotos já pequenas não precisam passar por esse processo (evita risco à toa)
+      if(file.size < 600 * 1024){
+        resolve(file);
+        return;
+      }
+
+      // método principal: createImageBitmap com redimensionamento nativo.
+      // O navegador consegue decodificar a foto já no tamanho reduzido,
+      // sem precisar carregar a imagem inteira (original) na memória —
+      // isso evita travamentos em celulares mais fracos/antigos.
+      if(window.createImageBitmap){
+        try{
+          const bitmap = await createImageBitmap(file, { resizeWidth: maxDim, resizeQuality: 'medium' });
+          const canvas = document.createElement('canvas');
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          canvas.getContext('2d').drawImage(bitmap, 0, 0);
+          if(bitmap.close) bitmap.close();
+          canvas.toBlob(blob => {
+            canvas.width = 0; canvas.height = 0; // libera a memória do canvas
+            if(blob) resolve(blob); else reject(new Error('Falha ao comprimir imagem'));
+          }, 'image/jpeg', quality);
+          return;
+        }catch(e){
+          console.warn('createImageBitmap falhou, tentando método alternativo:', e);
+        }
+      }
+
+      // fallback: método antigo via <img>, só usado se o navegador não suportar
+      // createImageBitmap com redimensionamento (raro, navegadores bem antigos)
       const img = new Image();
       const objUrl = URL.createObjectURL(file);
       img.onload = () => {
